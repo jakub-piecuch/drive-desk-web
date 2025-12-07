@@ -8,21 +8,21 @@ import { Badge } from "@/components/ui/badge"
 import { getTheme } from "@/lib/theme-config"
 import { Layout } from "@/modules/layout/Layout"
 import { Download, Plus } from "lucide-react"
-import { useCars } from "./car.hooks"
+import { useTrainees } from "./trainee.hooks"
 
 export default function Cars() {
   const theme = getTheme('green')
-  const cars = useCars();
+  const trainees = useTrainees();
 
   // Define table headers
-  const headers = ["Registration Number", "Make", "Model"];
+  const headers = ["Name", "Sure Name", "Email", "Phone Number"];
 
   // Transform the data to match our headers
-  const transformedData = cars.data?.map(car => ({
-    ID: car.id,
-    RegistrationNumber: car.registrationNumber,
-    Make: car.make,
-    Model: car.model
+  const transformedData = trainees.data?.map(trainee => ({
+    ID: trainee.id,
+    Name: trainee.name,
+    SureName: trainee.sureName,
+    Email: trainee.email
   })) || [];
 
   const handleRowClick = (item: any) => {
@@ -33,7 +33,7 @@ export default function Cars() {
     <Layout>
       <div className="p-6 sm:p-6 space-y-6">
         <PageHeader
-          title="Cars"
+          title="Trainees"
           actions={
             <>
               <Button
@@ -49,7 +49,7 @@ export default function Cars() {
                 className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Add Car
+                Add Trainee
               </Button>
             </>
           }
@@ -60,11 +60,11 @@ export default function Cars() {
             <DataTable
               headers={headers}
               data={transformedData}
-              description="cars"
-              isLoading={cars.isLoading}
-              isError={cars.isError}
+              description="trainees"
+              isLoading={trainees.isLoading}
+              isError={trainees.isError}
               idField="ID"
-              searchField="RegistrationNumber"
+              searchField="Email"
               onRowClick={handleRowClick} // Use our custom row click handler
             />
           </div>

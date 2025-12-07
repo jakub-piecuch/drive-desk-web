@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchCars } from "./car.api";
+import { fetchInstructors } from "./instructor.api";
 
-export function useCars() {
+export function useInstructors() {
   const query = useQuery({
-    queryKey: ['cars'],
-    queryFn: fetchCars,
+    queryKey: ['instructors'],
+    queryFn: fetchInstructors,
   });
   
-  console.log('Cars query state:', {
+  console.log('Instructors query state:', {
     data: query.data,
     isLoading: query.isLoading,
     isError: query.isError,

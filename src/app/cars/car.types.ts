@@ -1,5 +1,3 @@
-import { UUID } from "crypto";
-
 export interface Car {
   id: string
   make: string

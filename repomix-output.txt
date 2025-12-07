@@ -53,12 +53,20 @@ public/
   window.svg
 src/
   app/
+    cars/
+      car.api.ts
+      car.hooks.ts
+      car.types.ts
+      page.tsx
     dashboard/
       page.tsx
     login/
       page.tsx
     schedules/
       page.tsx
+    trainees/
+      trainee.api.ts
+      trainee.types.ts
     globals.css
     layout.tsx
     page.tsx
@@ -174,6 +182,137 @@ File: public/vercel.svg
 File: public/window.svg
 ================
 <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
+
+================
+File: src/app/cars/car.api.ts
+================
+import { Car } from "./car.types";
+
+const HTTP_HOST_STRING = process.env.SERVER_LOCAL_URL
+
+export const fetchCars = async (): Promise<Car[]> => {
+    const response = await fetch(HTTP_HOST_STRING + '/api/cars');
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch cars: ${response.status}`);
+    }
+    
+    // Parse the JSON once and store it in a variable
+    const data = await response.json();
+    console.log('cars data:', data);
+    return data;
+};
+
+================
+File: src/app/cars/car.hooks.ts
+================
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchCars } from "./car.api";
+
+export function useCars() {
+  const query = useQuery({
+    queryKey: ['posts'],
+    queryFn: fetchCars,
+  });
+  
+  console.log('Cars query state:', {
+    data: query.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error
+  });
+  
+  return query;
+}
+
+================
+File: src/app/cars/car.types.ts
+================
+export interface Car {
+  id: string
+  make: string
+  model: string
+  registrationNumber:string
+}
+
+================
+File: src/app/cars/page.tsx
+================
+'use client';
+
+import { DataTable } from "@/components/DataTable"
+import { Section } from "@/components/layout/Section";
+import { PageHeader } from "@/components/PageHeader"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { getTheme } from "@/lib/theme-config"
+import { Layout } from "@/modules/layout/Layout"
+import { Download, Plus } from "lucide-react"
+import { useCars } from "./car.hooks"
+
+export default function Cars() {
+  const theme = getTheme('green')
+  const cars = useCars();
+
+  // Define table headers
+  const headers = ["Registration Number", "Make", "Model"];
+
+  // Transform the data to match our headers
+  const transformedData = cars.data?.map(car => ({
+    ID: car.id,
+    RegistrationNumber: car.registrationNumber,
+    Make: car.make,
+    Model: car.model
+  })) || [];
+
+  const handleRowClick = (item: any) => {
+    // empty for now
+  };
+
+  return (
+    <Layout>
+      <div className="p-6 sm:p-6 space-y-6">
+        <PageHeader
+          title="Cars"
+          actions={
+            <>
+              <Button
+                variant="lightGray"
+                size="sm"
+                className={`whitespace-nowrap ${theme.colors.light}`}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </Button>
+              <Button
+                size="sm"
+                className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add new car
+              </Button>
+            </>
+          }
+        />
+
+        <Section className="py-6 animate-fade-in" containerSize="full">
+          <div className="mt-6 animate-slide-down">
+            <DataTable
+              headers={headers}
+              data={transformedData}
+              description="cars"
+              isLoading={cars.isLoading}
+              isError={cars.isError}
+              idField="ID"
+              searchField="RegistrationNumber"
+              onRowClick={handleRowClick} // Use our custom row click handler
+            />
+          </div>
+        </Section>
+      </div>
+    </Layout>
+  )
+}
 
 ================
 File: src/app/dashboard/page.tsx
@@ -437,6 +576,37 @@ export default function Dashboard() {
 }
 
 ================
+File: src/app/trainees/trainee.api.ts
+================
+import { Trainee } from "./trainee.types";
+
+const HTTP_HOST_STRING = process.env.SERVER_LOCAL_URL
+
+
+export const fetchTrainees = async (): Promise<Trainee[]> => {
+    const response = await fetch(HTTP_HOST_STRING + '/api/trainees')
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch trainees: ${response.status}`)
+    }
+
+    const data = await response.json();
+    console.log('trainees data:', data);
+    return data;
+}
+
+================
+File: src/app/trainees/trainee.types.ts
+================
+export interface Trainee {
+  id: string
+  name: string
+  sureName: string
+  phoneNumber: string
+  email: string
+}
+
+================
 File: src/app/globals.css
 ================
 @import "tailwindcss";
@@ -684,7 +854,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         {/* <SessionProvider> */}
-          {/* <QueryClientProvider client={queryClient}> */}
+          <QueryClientProvider client={queryClient}>
             <ThemeProvider
               attribute="class"
               defaultTheme="dark"
@@ -695,7 +865,7 @@ export default function RootLayout({
               <Toaster position="top-right" theme="light" />
             </ThemeProvider>
             {/* {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />} */}
-          {/* </QueryClientProvider> */}
+          </QueryClientProvider>
         {/* </SessionProvider> */}
       </body>
     </html>
@@ -6546,13 +6716,14 @@ export { useToast, toast };
 ================
 File: src/components/DataTable.tsx
 ================
+"use client";
+
 import React, { FC, useState } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
   CardFooter
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6573,32 +6744,50 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-
-interface Props {
+interface Props<T extends Record<string, any>> {
   headers: string[];
-  data: any[];
+  data: T[];
   description?: string;
-  // searchQuery: string;
   isLoading: boolean;
+  isError: boolean;
+  idField?: keyof T; // Allow customizing which field to use as ID
+  searchField?: keyof T; // Allow customizing which field to search in
+  onRowClick?: (item: T) => void; // Optional custom row click handler
+  basePath?: string; // Base path for navigation when clicking a row
 }
 
-export const DataTable: FC<Props> = ({ headers, data, description, isLoading }) => {
-
+export const DataTable = <T extends Record<string, any>,>({
+  headers,
+  data,
+  description = "items",
+  isLoading,
+  isError,
+  idField = "id" as keyof T,
+  searchField,
+  onRowClick,
+  basePath
+}: Props<T>) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [pageSize, setPageSize] = useState("10");
   const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
 
-  const filteredData = data.filter((item) =>
-    //accessing first header as it should be the one we are looking by
-    item[headers[0].toLowerCase()].toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Determine which field to search in (default to first header if not specified)
+  const fieldToSearch = searchField || headers[0] as keyof T;
+
+  const filteredData = data.filter((item) => {
+    // Handle possible undefined or null values
+    const fieldValue = item[fieldToSearch];
+    if (fieldValue === undefined || fieldValue === null) return false;
+
+    return String(fieldValue).toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   // Calculate pagination
   const totalItems = filteredData.length;
-  const totalPages = Math.ceil(totalItems / parseInt(pageSize));
+  const totalPages = Math.max(1, Math.ceil(totalItems / parseInt(pageSize)));
 
   // Get current page of data
   const indexOfLastItem = currentPage * parseInt(pageSize);
@@ -6616,147 +6805,242 @@ export const DataTable: FC<Props> = ({ headers, data, description, isLoading }) 
     setCurrentPage(1); // Reset to first page when changing page size
   };
 
-  return (
-    <div>
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="mt-2 relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder={`Search ${description}...`}
-              className="pl-8 w-full md:w-80"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </CardHeader>
+  // Handle row click
+  const handleRowClick = (item: T) => {
+    if (onRowClick) {
+      onRowClick(item);
+    } else if (basePath) {
+      // Ensure the ID exists before navigating
+      const id = item[idField];
+      if (id !== undefined) {
+        router.push(`${basePath}/${id}`);
+      }
+    }
+  };
 
-        <CardContent>
-          {isLoading ? showLoadingRows() : currentData.length > 0 ? generateTable(currentData, headers, description) : showEmptyDataContent()}
-        </CardContent>
-        {filteredData.length > 0 && (
-          getFooterContent(indexOfFirstItem, indexOfLastItem, totalItems, pageSize, handlePageSizeChange, handlePageChange, currentPage, totalPages)
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="mt-2 relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder={`Search ${description}...`}
+            className="pl-8 w-full md:w-80"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </CardHeader>
+
+      <CardContent>
+        {isError ? (<ErrorState/>) : isLoading ? (
+          <LoadingRows />
+        ) : currentData.length > 0 ? (
+          <DataTableContent
+            data={currentData}
+            headers={headers}
+            handleRowClick={handleRowClick}
+          />
+        ) : (
+          <EmptyState />
         )}
-      </Card>
+      </CardContent>
+
+      {filteredData.length > 0 && (
+        <TableFooter
+          indexOfFirstItem={indexOfFirstItem}
+          indexOfLastItem={indexOfLastItem}
+          totalItems={totalItems}
+          pageSize={pageSize}
+          handlePageSizeChange={handlePageSizeChange}
+          handlePageChange={handlePageChange}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
+      )}
+    </Card>
+  );
+};
+
+// Component for displaying table content
+const DataTableContent = <T extends Record<string, any>,>({
+  data,
+  headers,
+  handleRowClick,
+}: {
+  data: T[];
+  headers: string[];
+  handleRowClick: (item: T) => void;
+}) => {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow className="hover:bg-transparent cursor-default">
+          {headers.map((header, index) => (
+            <TableHead
+              key={index}
+              className={index > 0 ? "md:table-cell" : ""}
+            >
+              {header}
+            </TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data.map((item, rowIndex) => (
+          <TableRow
+            key={`row-${rowIndex}-${String(item.id || rowIndex)}`}
+            className="cursor-pointer transition-colors hover:bg-green-100 dark:hover:bg-green-900/30"
+            onClick={() => handleRowClick(item)}
+          >
+            {headers.map((header, cellIndex) => {
+              // Direct access to the property using the header as the key
+              //Need to transform header to camel case if has spaces in it
+              const headerToCamelCase = toCamelCase(header)
+              const value = item[headerToCamelCase];
+              
+              // Check if the current header might be a URL field
+              const isUrlField = header.toLowerCase().includes('url') || 
+                                header.toLowerCase().includes('website') || 
+                                header.toLowerCase() === 'link';
+              
+              return (
+                <TableCell
+                  key={`cell-${rowIndex}-${cellIndex}`}
+                  className={cellIndex > 0 ? "font-medium" : "md:table-cell"}
+                >
+                  {isUrlField && value ? (
+                    <a
+                      href={typeof value === 'string' ? (value.startsWith("http") ? value : `https://${value}`) : '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent row click when clicking the link
+                      }}
+                    >
+                      {value}
+                    </a>
+                  ) : (
+                    value || "-"
+                  )}
+                </TableCell>
+              );
+            })}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
+
+// Loading state component
+const LoadingRows: FC = () => {
+  return (
+    <div className="space-y-3">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="flex items-center w-full mb-4">
+          <Skeleton className="h-12 w-full bg-gray-300 dark:bg-gray-300" />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Empty state component
+const EmptyState: FC = () => {
+  return (
+    <div className="text-center py-10">
+      <p className="text-muted-foreground mb-4">No data found</p>
+    </div>
+  );
+};
+
+const ErrorState: FC = () => {
+   return (
+    <div className="text-center py-10">
+      <p className="text-muted-foreground mb-4">Error while retrieving data...</p>
     </div>
   );
 }
 
-function getFooterContent(indexOfFirstItem: number, indexOfLastItem: number, totalItems: number, pageSize: string, handlePageSizeChange: (value: string) => void, handlePageChange: (page: number) => void, currentPage: number, totalPages: number): React.ReactNode {
-  return <CardFooter className="flex items-center justify-between pt-0">
-    <div className="text-sm text-muted-foreground">
-      {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalItems)} of {totalItems}
-    </div>
-    <div className="flex items-center space-x-6">
-      <div className="flex items-center space-x-2">
-        <Select
-          value={pageSize}
-          onValueChange={handlePageSizeChange}
-        >
-          <SelectTrigger className="h-8 w-[70px]">
-            <SelectValue placeholder="10" />
-          </SelectTrigger>
-          <SelectContent side="top">
-            {["10", "15", "20"].map((size) => (
-              <SelectItem key={size} value={size}>
-                {size}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="h-8 w-8 p-0"
-        >
-          <span className="sr-only">Go to previous page</span>
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <div className="text-sm font-medium">
-          {currentPage} of {totalPages}
+// Table footer with pagination
+const TableFooter: FC<{
+  indexOfFirstItem: number;
+  indexOfLastItem: number;
+  totalItems: number;
+  pageSize: string;
+  handlePageSizeChange: (value: string) => void;
+  handlePageChange: (page: number) => void;
+  currentPage: number;
+  totalPages: number;
+}> = ({
+  indexOfFirstItem,
+  indexOfLastItem,
+  totalItems,
+  pageSize,
+  handlePageSizeChange,
+  handlePageChange,
+  currentPage,
+  totalPages,
+}) => {
+    return (
+      <CardFooter className="flex items-center justify-between pt-0">
+        <div className="text-sm text-muted-foreground">
+          {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalItems)} of {totalItems}
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="h-8 w-8 p-0"
-        >
-          <span className="sr-only">Go to next page</span>
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  </CardFooter>;
-}
-
-function showEmptyDataContent(): React.ReactNode {
-  return <div className="text-center py-10">
-    <p className="text-muted-foreground mb-4">No companies found</p>
-  </div>;
-}
-
-function generateTable(currentData: any[], headers: string[], description?: string): React.ReactNode {
-  return <Table>
-    <TableHeader>
-      <TableRow className="hover:bg-transparent cursor-default">
-        {headers.map((header, index) => (
-          <TableHead
-            key={index}
-            //add hidden if want to hide when small screen
-            className={index > 0 ? "md:table-cell" : ""}
-          >
-            {header}
-          </TableHead>
-        ))}
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      {currentData.map((item) => (
-        <TableRow
-          key={item.id}
-          className="cursor-pointer hover:bg-muted/50"
-          onClick={() => router.push(`/${description}/${item.id}`)}
-        >
-          {headers.map((header, index) => (
-            <TableCell
-              key={index}
-              className={index > 0 ? "font-medium" : "md:table-cell"}
+        <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-2">
+            <Select
+              value={pageSize}
+              onValueChange={handlePageSizeChange}
             >
-              {/* if website and has value do hyperlink otherwise '-' */}
-              {header == "Website" && item[header.toLowerCase()]
-                ? <a
-                  href={`https://${item[header.toLowerCase()]}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {item[header.toLowerCase()]}
-                </a>
-                : item[header.toLowerCase()] || "-"}
-            </TableCell>
-          ))}
-        </TableRow>
-      ))}
-    </TableBody>
-  </Table>;
-}
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue placeholder="10" />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {["10", "15", "20", "50"].map((size) => (
+                  <SelectItem key={size} value={size}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="h-8 w-8 p-0"
+            >
+              <span className="sr-only">Go to previous page</span>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="text-sm font-medium">
+              {currentPage} of {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="h-8 w-8 p-0"
+            >
+              <span className="sr-only">Go to next page</span>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardFooter>
+    );
+  };
 
-function showLoadingRows(): React.ReactNode {
-  return <div className="space-y-3">
-    {[...Array(3)].map((_, i) => (
-      <div key={i} className="flex items-center space-x-4">
-        <Skeleton className="h-12 w-full" />
-      </div>
-    ))}
-  </div>;
-}
+  const toCamelCase = (str: string): string => {
+    return str.replace(' ', '')
+  }
 
 ================
 File: src/components/PageHeader.tsx
@@ -7281,11 +7565,15 @@ import { useIsMobile } from "@/hooks/useMobile";
 import { cn } from "@/lib/utils";
 import {
   Calendar,
+  Car,
   ChevronLeft, ChevronRight,
+  CircleUserRound,
+  HardHat,
   HomeIcon,
   HousePlus,
   LogOut,
-  Menu
+  Menu,
+  Train
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
@@ -7389,11 +7677,9 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
             <div className="space-y-1">
               <NavItem to="/dashboard" icon={HomeIcon} label="Dashboard" />
               <NavItem to="/schedules" icon={Calendar} label="Schedules" />
-              {/* <NavItem to="/sales-performance" icon={BarChart3} label="Sales Performance" />
-              <NavItem to="/commissions" icon={Calculator} label="Commission" />
-              <NavItem to="/account-planning" icon={Building2} label="Account Planning" />
-              <NavItem to="/forecasting" icon={LineChart} label="Forecasting" />
-              <NavItem to="/activity-analysis" icon={Activity} label="Activity Analysis" /> */}
+              <NavItem to="/cars" icon={Car} label="Cars" />
+              <NavItem to="/instructors" icon={HardHat} label="Instructors" />
+              <NavItem to="/trainees" icon={Train} label="Trainees" />
             </div>
           </div>
 
@@ -7402,7 +7688,7 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
               {collapsed && !isMobileView ? "" : "Settings"}
             </p>
             <div className="space-y-1">
-              {/* <NavItem to="/settings" icon={Sliders} label="Integrations" /> */}
+              <NavItem to="/settings" icon={CircleUserRound} label="settings" />
               {/* <NavItem to="/configuration" icon={Settings} label="Configuration" /> */}
               {/* <NavItem to="/companies" icon={HousePlus} label="Companies" /> */}
               {/* <NavItem to="/account" icon={UserCog} label="Account Settings" /> */}
