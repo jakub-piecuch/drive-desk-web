@@ -60,12 +60,19 @@ src/
       page.tsx
     dashboard/
       page.tsx
+    instructors/
+      instructor.api.ts
+      instructor.hooks.ts
+      instructor.types.ts
+      page.tsx
     login/
       page.tsx
     schedules/
       page.tsx
     trainees/
+      page.tsx
       trainee.api.ts
+      trainee.hooks.ts
       trainee.types.ts
     globals.css
     layout.tsx
@@ -128,6 +135,8 @@ src/
       use-toast.ts
     DataTable.tsx
     PageHeader.tsx
+  config/
+    env.config.ts
   hooks/
     useContainerWidth.ts
     useMobile.tsx
@@ -186,32 +195,44 @@ File: public/window.svg
 ================
 File: src/app/cars/car.api.ts
 ================
+import { RESOURCE_HOST } from "@/config/env.config";
 import { Car } from "./car.types";
 
-const HTTP_HOST_STRING = process.env.SERVER_LOCAL_URL
+const API_DOMAIN_NAME = '/api/cars';
 
 export const fetchCars = async (): Promise<Car[]> => {
-    const response = await fetch(HTTP_HOST_STRING + '/api/cars');
+  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}`);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch cars: ${response.status}`);
-    }
-    
-    // Parse the JSON once and store it in a variable
-    const data = await response.json();
-    console.log('cars data:', data);
-    return data;
+  if (!response.ok) {
+    throw new Error(`Failed to fetch cars: ${response.status}`);
+  }
+
+  // Parse the JSON once and store it in a variable
+  const data = await response.json();
+  console.log('cars data:', data);
+  return data;
 };
+
+export const deleteCarById = async (id: string): Promise<void> => {
+  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}/${id}`);
+
+  console.log(response.status)
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete car by id: ${id} status: ${response.status}`);
+  }
+}
 
 ================
 File: src/app/cars/car.hooks.ts
 ================
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchCars } from "./car.api";
+import { deleteCarById, fetchCars } from "./car.api";
+import { toast } from "sonner";
 
 export function useCars() {
   const query = useQuery({
-    queryKey: ['posts'],
+    queryKey: ['cars'],
     queryFn: fetchCars,
   });
   
@@ -223,6 +244,27 @@ export function useCars() {
   });
   
   return query;
+}
+
+export function useDeleteCarById() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    // The function that performs the delete
+    mutationFn: (id: string) => deleteCarById(id),
+    
+    // What to do if it succeeds
+    onSuccess: () => {
+      toast.success("Car deleted successfully");
+      // This forces the list to refresh automatically
+      queryClient.invalidateQueries({ queryKey: ['cars'] });
+    },
+    
+    // What to do if it fails
+    onError: (error) => {
+      toast.error(`Error deleting car: ${error}`);
+    }
+  });
 }
 
 ================
@@ -248,11 +290,13 @@ import { Badge } from "@/components/ui/badge"
 import { getTheme } from "@/lib/theme-config"
 import { Layout } from "@/modules/layout/Layout"
 import { Download, Plus } from "lucide-react"
-import { useCars } from "./car.hooks"
+import { useCars, useDeleteCarById } from "./car.hooks"
 
 export default function Cars() {
   const theme = getTheme('green')
   const cars = useCars();
+  const deleteCarMutation = useDeleteCarById();
+  // const deleteCar = useDeleteCarById();
 
   // Define table headers
   const headers = ["Registration Number", "Make", "Model"];
@@ -268,6 +312,12 @@ export default function Cars() {
   const handleRowClick = (item: any) => {
     // empty for now
   };
+
+  const handleDeleteClick = (item: any) => {
+    if (confirm("Are you sure you want to delete this car?")) {
+        deleteCarMutation.mutate(item.ID);
+    }
+  }
 
   return (
     <Layout>
@@ -289,7 +339,7 @@ export default function Cars() {
                 className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Add new car
+                Add Car
               </Button>
             </>
           }
@@ -305,7 +355,8 @@ export default function Cars() {
               isError={cars.isError}
               idField="ID"
               searchField="RegistrationNumber"
-              onRowClick={handleRowClick} // Use our custom row click handler
+              onRowClick={handleRowClick}
+              onDeleteClick={handleDeleteClick} // Use our custom row click handler
             />
           </div>
         </Section>
@@ -413,6 +464,139 @@ export default function Dashboard() {
                 </p>
               </CardContent>
             </Card>
+          </div>
+        </Section>
+      </div>
+    </Layout>
+  )
+}
+
+================
+File: src/app/instructors/instructor.api.ts
+================
+import { RESOURCE_HOST } from "@/config/env.config";
+import { Instructor } from "./instructor.types";
+
+const API_DOMAIN_NAME = '/api/instructors';
+
+export const fetchInstructors = async (): Promise<Instructor[]> => {
+    const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${API_DOMAIN_NAME}: ${response.status}`);
+    }
+    
+    // Parse the JSON once and store it in a variable
+    const data = await response.json();
+    console.log(`${API_DOMAIN_NAME} data:`, data);
+    return data;
+};
+
+================
+File: src/app/instructors/instructor.hooks.ts
+================
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchInstructors } from "./instructor.api";
+
+export function useInstructors() {
+  const query = useQuery({
+    queryKey: ['instructors'],
+    queryFn: fetchInstructors,
+  });
+  
+  console.log('Instructors query state:', {
+    data: query.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error
+  });
+  
+  return query;
+}
+
+================
+File: src/app/instructors/instructor.types.ts
+================
+export interface Instructor {
+  id: string
+  name: string
+  sureName: string
+  email: string
+  phoneNumber: string
+}
+
+================
+File: src/app/instructors/page.tsx
+================
+'use client';
+
+import { DataTable } from "@/components/DataTable"
+import { Section } from "@/components/layout/Section";
+import { PageHeader } from "@/components/PageHeader"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { getTheme } from "@/lib/theme-config"
+import { Layout } from "@/modules/layout/Layout"
+import { Download, Plus } from "lucide-react"
+import { useInstructors } from "./instructor.hooks";
+
+export default function Instructors() {
+  const theme = getTheme('green')
+  const instructors = useInstructors();
+
+  // Define table headers
+  const headers = ["Name", "Sure Name", "Email", "Phone Number"];
+
+  // Transform the data to match our headers
+  const transformedData = instructors.data?.map(instructor => ({
+    ID: instructor.id,
+    Name: instructor.name,
+    SureName: instructor.sureName,
+    Email: instructor.email
+  })) || [];
+
+  const handleRowClick = (item: any) => {
+    // empty for now
+  };
+
+  return (
+    <Layout>
+      <div className="p-6 sm:p-6 space-y-6">
+        <PageHeader
+          title="Instructors"
+          actions={
+            <>
+              <Button
+                variant="lightGray"
+                size="sm"
+                className={`whitespace-nowrap ${theme.colors.light}`}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </Button>
+              <Button
+                size="sm"
+                className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Instructor
+              </Button>
+            </>
+          }
+        />
+
+        <Section className="py-6 animate-fade-in" containerSize="full">
+          <div className="mt-6 animate-slide-down">
+            <DataTable
+              headers={headers}
+              data={transformedData}
+              description="instructors"
+              isLoading={instructors.isLoading}
+              isError={instructors.isError}
+              idField="ID"
+              searchField="Email"
+              onRowClick={handleRowClick} // Use our custom row click handler
+            />
           </div>
         </Section>
       </div>
@@ -576,23 +760,126 @@ export default function Dashboard() {
 }
 
 ================
+File: src/app/trainees/page.tsx
+================
+'use client';
+
+import { DataTable } from "@/components/DataTable"
+import { Section } from "@/components/layout/Section";
+import { PageHeader } from "@/components/PageHeader"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { getTheme } from "@/lib/theme-config"
+import { Layout } from "@/modules/layout/Layout"
+import { Download, Plus } from "lucide-react"
+import { useTrainees } from "./trainee.hooks"
+
+export default function Cars() {
+  const theme = getTheme('green')
+  const trainees = useTrainees();
+
+  // Define table headers
+  const headers = ["Name", "Sure Name", "Email", "Phone Number"];
+
+  // Transform the data to match our headers
+  const transformedData = trainees.data?.map(trainee => ({
+    ID: trainee.id,
+    Name: trainee.name,
+    SureName: trainee.sureName,
+    Email: trainee.email
+  })) || [];
+
+  const handleRowClick = (item: any) => {
+    // empty for now
+  };
+
+  return (
+    <Layout>
+      <div className="p-6 sm:p-6 space-y-6">
+        <PageHeader
+          title="Trainees"
+          actions={
+            <>
+              <Button
+                variant="lightGray"
+                size="sm"
+                className={`whitespace-nowrap ${theme.colors.light}`}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </Button>
+              <Button
+                size="sm"
+                className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Trainee
+              </Button>
+            </>
+          }
+        />
+
+        <Section className="py-6 animate-fade-in" containerSize="full">
+          <div className="mt-6 animate-slide-down">
+            <DataTable
+              headers={headers}
+              data={transformedData}
+              description="trainees"
+              isLoading={trainees.isLoading}
+              isError={trainees.isError}
+              idField="ID"
+              searchField="Email"
+              onRowClick={handleRowClick} // Use our custom row click handler
+            />
+          </div>
+        </Section>
+      </div>
+    </Layout>
+  )
+}
+
+================
 File: src/app/trainees/trainee.api.ts
 ================
+import { RESOURCE_HOST } from "@/config/env.config";
 import { Trainee } from "./trainee.types";
 
-const HTTP_HOST_STRING = process.env.SERVER_LOCAL_URL
 
+const API_DOMAIN_NAME = '/api/trainees'
 
 export const fetchTrainees = async (): Promise<Trainee[]> => {
-    const response = await fetch(HTTP_HOST_STRING + '/api/trainees')
+    const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}`);
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch trainees: ${response.status}`)
+      throw new Error(`Failed to fetch ${API_DOMAIN_NAME}: ${response.status}`);
     }
-
+    
+    // Parse the JSON once and store it in a variable
     const data = await response.json();
-    console.log('trainees data:', data);
+    console.log(`${API_DOMAIN_NAME} data:`, data);
     return data;
+};
+
+================
+File: src/app/trainees/trainee.hooks.ts
+================
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchTrainees } from "./trainee.api";
+
+export function useTrainees() {
+  const query = useQuery({
+    queryKey: ['trainees'],
+    queryFn: fetchTrainees,
+  });
+  
+  console.log('Trainees query state:', {
+    data: query.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error
+  });
+  
+  return query;
 }
 
 ================
@@ -602,8 +889,8 @@ export interface Trainee {
   id: string
   name: string
   sureName: string
-  phoneNumber: string
   email: string
+  phoneNumber: string
 }
 
 ================
@@ -6745,6 +7032,8 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 
 interface Props<T extends Record<string, any>> {
   headers: string[];
@@ -6754,7 +7043,8 @@ interface Props<T extends Record<string, any>> {
   isError: boolean;
   idField?: keyof T; // Allow customizing which field to use as ID
   searchField?: keyof T; // Allow customizing which field to search in
-  onRowClick?: (item: T) => void; // Optional custom row click handler
+  onRowClick?: (item: T) => void;
+  onDeleteClick?: (itme: T) => void;
   basePath?: string; // Base path for navigation when clicking a row
 }
 
@@ -6767,6 +7057,7 @@ export const DataTable = <T extends Record<string, any>,>({
   idField = "id" as keyof T,
   searchField,
   onRowClick,
+  onDeleteClick,
   basePath
 }: Props<T>) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -6818,6 +7109,13 @@ export const DataTable = <T extends Record<string, any>,>({
     }
   };
 
+  const handleDeleteClick = (item: T) => {
+    if (onDeleteClick) {
+      console.log(item)
+      onDeleteClick(item);
+    }
+  }
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -6834,13 +7132,14 @@ export const DataTable = <T extends Record<string, any>,>({
       </CardHeader>
 
       <CardContent>
-        {isError ? (<ErrorState/>) : isLoading ? (
+        {isError ? (<ErrorState />) : isLoading ? (
           <LoadingRows />
         ) : currentData.length > 0 ? (
           <DataTableContent
             data={currentData}
             headers={headers}
             handleRowClick={handleRowClick}
+            handleDeleteClick={handleDeleteClick}
           />
         ) : (
           <EmptyState />
@@ -6868,10 +7167,12 @@ const DataTableContent = <T extends Record<string, any>,>({
   data,
   headers,
   handleRowClick,
+  handleDeleteClick
 }: {
   data: T[];
   headers: string[];
   handleRowClick: (item: T) => void;
+  handleDeleteClick: (item: T) => void;
 }) => {
   return (
     <Table>
@@ -6899,12 +7200,12 @@ const DataTableContent = <T extends Record<string, any>,>({
               //Need to transform header to camel case if has spaces in it
               const headerToCamelCase = toCamelCase(header)
               const value = item[headerToCamelCase];
-              
+
               // Check if the current header might be a URL field
-              const isUrlField = header.toLowerCase().includes('url') || 
-                                header.toLowerCase().includes('website') || 
-                                header.toLowerCase() === 'link';
-              
+              const isUrlField = header.toLowerCase().includes('url') ||
+                header.toLowerCase().includes('website') ||
+                header.toLowerCase() === 'link';
+
               return (
                 <TableCell
                   key={`cell-${rowIndex}-${cellIndex}`}
@@ -6928,6 +7229,31 @@ const DataTableContent = <T extends Record<string, any>,>({
                 </TableCell>
               );
             })}
+            <TableCell> {/* w-10 class helps keep the cell small */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // *** KEY: Prevent the parent row's onClick (handleRowClick) from firing ***
+                  // *** Call your delete function here ***
+                  // handleDelete(item.id); // Assuming 'item' has an 'id' property for deletion
+                }}
+                className="cursor-pointer rounded-full text-grey-600 hover:bg-grey-100 dark:text-grey-400 dark:hover:bg-grey-900/30 transition-colors"
+                title="Edit Row"
+              >
+                <EditNoteIcon className="h-5 w-5" />
+              </button>
+            </TableCell>
+            <TableCell>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClick
+                }}
+                className="cursor-pointer rounded-full text-red-600 hover:bg-red-200 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors"
+                title="Delete Row"
+              >
+                <DeleteForeverIcon className="h-5 w-5" />
+              </button>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -6958,7 +7284,7 @@ const EmptyState: FC = () => {
 };
 
 const ErrorState: FC = () => {
-   return (
+  return (
     <div className="text-center py-10">
       <p className="text-muted-foreground mb-4">Error while retrieving data...</p>
     </div>
@@ -7038,9 +7364,9 @@ const TableFooter: FC<{
     );
   };
 
-  const toCamelCase = (str: string): string => {
-    return str.replace(' ', '')
-  }
+const toCamelCase = (str: string): string => {
+  return str.replace(' ', '')
+}
 
 ================
 File: src/components/PageHeader.tsx
@@ -7082,6 +7408,11 @@ export function PageHeader({
     </div>
   );
 }
+
+================
+File: src/config/env.config.ts
+================
+export const RESOURCE_HOST = process.env.NEXT_PUBLIC_RESOURCE_HOST
 
 ================
 File: src/hooks/useContainerWidth.ts
@@ -7935,7 +8266,11 @@ File: package.json
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^4.1.3",
+    "@mui/icons-material": "^7.3.6",
+    "@mui/material": "^7.3.6",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-aspect-ratio": "^1.1.2",

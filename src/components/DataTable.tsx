@@ -27,6 +27,8 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 
 interface Props<T extends Record<string, any>> {
   headers: string[];
@@ -36,7 +38,8 @@ interface Props<T extends Record<string, any>> {
   isError: boolean;
   idField?: keyof T; // Allow customizing which field to use as ID
   searchField?: keyof T; // Allow customizing which field to search in
-  onRowClick?: (item: T) => void; // Optional custom row click handler
+  onRowClick?: (item: T) => void;
+  onDeleteClick?: (itme: T) => void;
   basePath?: string; // Base path for navigation when clicking a row
 }
 
@@ -49,6 +52,7 @@ export const DataTable = <T extends Record<string, any>,>({
   idField = "id" as keyof T,
   searchField,
   onRowClick,
+  onDeleteClick,
   basePath
 }: Props<T>) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,6 +104,13 @@ export const DataTable = <T extends Record<string, any>,>({
     }
   };
 
+  const handleDeleteClick = (item: T) => {
+    if (onDeleteClick) {
+      console.log('Deleting item', item)
+      onDeleteClick(item);
+    }
+  }
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -116,13 +127,14 @@ export const DataTable = <T extends Record<string, any>,>({
       </CardHeader>
 
       <CardContent>
-        {isError ? (<ErrorState/>) : isLoading ? (
+        {isError ? (<ErrorState />) : isLoading ? (
           <LoadingRows />
         ) : currentData.length > 0 ? (
           <DataTableContent
             data={currentData}
             headers={headers}
             handleRowClick={handleRowClick}
+            handleDeleteClick={handleDeleteClick}
           />
         ) : (
           <EmptyState />
@@ -150,10 +162,12 @@ const DataTableContent = <T extends Record<string, any>,>({
   data,
   headers,
   handleRowClick,
+  handleDeleteClick
 }: {
   data: T[];
   headers: string[];
   handleRowClick: (item: T) => void;
+  handleDeleteClick: (item: T) => void;
 }) => {
   return (
     <Table>
@@ -173,7 +187,7 @@ const DataTableContent = <T extends Record<string, any>,>({
         {data.map((item, rowIndex) => (
           <TableRow
             key={`row-${rowIndex}-${String(item.id || rowIndex)}`}
-            className="cursor-pointer transition-colors hover:bg-green-100 dark:hover:bg-green-900/30"
+            className="cursor-pointer"
             onClick={() => handleRowClick(item)}
           >
             {headers.map((header, cellIndex) => {
@@ -181,12 +195,12 @@ const DataTableContent = <T extends Record<string, any>,>({
               //Need to transform header to camel case if has spaces in it
               const headerToCamelCase = toCamelCase(header)
               const value = item[headerToCamelCase];
-              
+
               // Check if the current header might be a URL field
-              const isUrlField = header.toLowerCase().includes('url') || 
-                                header.toLowerCase().includes('website') || 
-                                header.toLowerCase() === 'link';
-              
+              const isUrlField = header.toLowerCase().includes('url') ||
+                header.toLowerCase().includes('website') ||
+                header.toLowerCase() === 'link';
+
               return (
                 <TableCell
                   key={`cell-${rowIndex}-${cellIndex}`}
@@ -210,6 +224,34 @@ const DataTableContent = <T extends Record<string, any>,>({
                 </TableCell>
               );
             })}
+            <TableCell className="w-10 margin-right-5">
+              <div className="flex justify-end space-x-2"> 
+                {/* Edit Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Assuming you have an onEditClick or similar prop here
+                    // onEditClick(item); 
+                  }}
+                  className="cursor-pointer p-1 rounded-full text-grey-600 hover:bg-grey-100 dark:text-grey-400 dark:hover:bg-grey-900/30 transition-colors"
+                  title="Edit Row"
+                >
+                  <EditNoteIcon className="h-5 w-5" />
+                </button>
+
+                {/* Delete Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(item);
+                  }}
+                  className="cursor-pointer p-1 rounded-full text-red-600 hover:bg-red-200 dark:text-red-400 dark:hover:bg-red-900/60 transition-colors"
+                  title="Delete Row"
+                >
+                  <DeleteForeverIcon className="h-5 w-5" />
+                </button>
+              </div>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -240,7 +282,7 @@ const EmptyState: FC = () => {
 };
 
 const ErrorState: FC = () => {
-   return (
+  return (
     <div className="text-center py-10">
       <p className="text-muted-foreground mb-4">Error while retrieving data...</p>
     </div>
@@ -320,6 +362,6 @@ const TableFooter: FC<{
     );
   };
 
-  const toCamelCase = (str: string): string => {
-    return str.replace(' ', '')
-  }
+const toCamelCase = (str: string): string => {
+  return str.replace(' ', '')
+}

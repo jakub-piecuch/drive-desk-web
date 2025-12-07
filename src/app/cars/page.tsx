@@ -8,11 +8,13 @@ import { Badge } from "@/components/ui/badge"
 import { getTheme } from "@/lib/theme-config"
 import { Layout } from "@/modules/layout/Layout"
 import { Download, Plus } from "lucide-react"
-import { useCars } from "./car.hooks"
+import { useCars, useDeleteCarById } from "./car.hooks"
 
 export default function Cars() {
   const theme = getTheme('green')
   const cars = useCars();
+  const deleteCarMutation = useDeleteCarById();
+  // const deleteCar = useDeleteCarById();
 
   // Define table headers
   const headers = ["Registration Number", "Make", "Model"];
@@ -28,6 +30,12 @@ export default function Cars() {
   const handleRowClick = (item: any) => {
     // empty for now
   };
+
+  const handleDeleteClick = (item: any) => {
+    if (confirm("Are you sure you want to delete this car?")) {
+        deleteCarMutation.mutate(item.ID);
+    }
+  }
 
   return (
     <Layout>
@@ -65,7 +73,8 @@ export default function Cars() {
               isError={cars.isError}
               idField="ID"
               searchField="RegistrationNumber"
-              onRowClick={handleRowClick} // Use our custom row click handler
+              onRowClick={handleRowClick}
+              onDeleteClick={handleDeleteClick} // Use our custom row click handler
             />
           </div>
         </Section>
