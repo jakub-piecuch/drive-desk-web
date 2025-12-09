@@ -1,29 +1,17 @@
 'use client';
 
-import { DataTable } from "@/components/DataTable"
+import { DataTable } from "@/components/DataTable";
 import { Section } from "@/components/layout/Section";
-import { PageHeader } from "@/components/PageHeader"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { getTheme } from "@/lib/theme-config"
-import { Layout } from "@/modules/layout/Layout"
-import { Download, Plus } from "lucide-react"
-import { useInstructors } from "./instructor.hooks";
+import { PageHeader } from "@/components/PageHeader";
+import { Button } from "@/components/ui/button";
+import { getTheme } from "@/lib/theme-config";
+import { Layout } from "@/modules/layout/Layout";
+import { Download, Plus } from "lucide-react";
+import { useInstructorsTableData } from "./instructor.hooks";
 
 export default function Instructors() {
   const theme = getTheme('green')
-  const instructors = useInstructors();
-
-  // Define table headers
-  const headers = ["Name", "Sure Name", "Email", "Phone Number"];
-
-  // Transform the data to match our headers
-  const transformedData = instructors.data?.map(instructor => ({
-    ID: instructor.id,
-    Name: instructor.name,
-    SureName: instructor.sureName,
-    Email: instructor.email
-  })) || [];
+  const instructors = useInstructorsTableData();
 
   const handleRowClick = (item: any) => {
     // empty for now
@@ -58,8 +46,8 @@ export default function Instructors() {
         <Section className="py-6 animate-fade-in" containerSize="full">
           <div className="mt-6 animate-slide-down">
             <DataTable
-              headers={headers}
-              data={transformedData}
+              headers={instructors.headers}
+              data={instructors.data}
               description="instructors"
               isLoading={instructors.isLoading}
               isError={instructors.isError}

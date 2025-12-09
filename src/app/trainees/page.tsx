@@ -8,22 +8,11 @@ import { Badge } from "@/components/ui/badge"
 import { getTheme } from "@/lib/theme-config"
 import { Layout } from "@/modules/layout/Layout"
 import { Download, Plus } from "lucide-react"
-import { useTrainees } from "./trainee.hooks"
+import { useTrainees, useTraineesTableData } from "./trainee.hooks"
 
 export default function Cars() {
   const theme = getTheme('green')
-  const trainees = useTrainees();
-
-  // Define table headers
-  const headers = ["Name", "Sure Name", "Email", "Phone Number"];
-
-  // Transform the data to match our headers
-  const transformedData = trainees.data?.map(trainee => ({
-    ID: trainee.id,
-    Name: trainee.name,
-    SureName: trainee.sureName,
-    Email: trainee.email
-  })) || [];
+  const trainees = useTraineesTableData();
 
   const handleRowClick = (item: any) => {
     // empty for now
@@ -58,8 +47,8 @@ export default function Cars() {
         <Section className="py-6 animate-fade-in" containerSize="full">
           <div className="mt-6 animate-slide-down">
             <DataTable
-              headers={headers}
-              data={transformedData}
+              headers={trainees.headers}
+              data={trainees.data}
               description="trainees"
               isLoading={trainees.isLoading}
               isError={trainees.isError}

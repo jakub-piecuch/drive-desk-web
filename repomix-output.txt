@@ -54,6 +54,8 @@ public/
 src/
   app/
     cars/
+      modules/
+        CreateCarModal.tsx
       car.api.ts
       car.hooks.ts
       car.types.ts
@@ -134,6 +136,7 @@ src/
       tooltip.tsx
       use-toast.ts
     DataTable.tsx
+    FormInputRow.tsx
     PageHeader.tsx
   config/
     env.config.ts
@@ -193,6 +196,102 @@ File: public/window.svg
 <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
 
 ================
+File: src/app/cars/modules/CreateCarModal.tsx
+================
+import { FormInputRow } from "@/components/FormInputRow";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+import { getTheme } from "@/lib/theme-config";
+import { useState } from 'react';
+import { toast } from "sonner";
+import { useCreateCar } from "../car.hooks";
+
+interface CreateCarModalProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalProps) {
+  const theme = getTheme();
+  const [make, setMake] = useState('');
+  const [model, setModel] = useState('');
+  const [registrationNumber, setRegistrationNumber] = useState('');
+  const { mutate: createCar, isPending } = useCreateCar();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!make || !model || !registrationNumber) {
+      toast.error('Please fill in all required fields.');
+      return;
+    }
+
+    createCar(
+      {
+        make: make,
+        model: model,
+        registrationNumber: registrationNumber,
+      }
+    );
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px] md:max-w-[600px] lg:max-w-[650px]">
+        <DialogHeader>
+          <DialogTitle>Create New Car</DialogTitle>
+          <DialogDescription>
+            Add a new Car for you school.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-start gap-4">
+              <FormInputRow
+                id="make"
+                labelText="Make:"
+                placeholder="make..."
+                value={make}
+                onChange={(e) => setMake(e.target.value)}
+                required
+              />
+              <FormInputRow
+                id="model"
+                labelText="Model:"
+                placeholder="model..."
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                required
+              />
+              <FormInputRow
+                id="registrationNumber"
+                labelText="Registration Number:"
+                placeholder="registration number..."
+                value={registrationNumber}
+                onChange={(e) => setRegistrationNumber(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" disabled={isPending} className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}>
+              {isPending ? 'Creating...' : 'Create Car'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+================
 File: src/app/cars/car.api.ts
 ================
 import { RESOURCE_HOST } from "@/config/env.config";
@@ -213,13 +312,33 @@ export const fetchCars = async (): Promise<Car[]> => {
   return data;
 };
 
-export const deleteCarById = async (id: string): Promise<void> => {
-  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}/${id}`);
+export const createCar = async (car: Car): Promise<Car> => {
+  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(car),
+  });
 
-  console.log(response.status)
+  if (!response.ok) {
+    throw new Error(`Failed to create car. Status: ${response.status}`);
+  } else {
+    console.log(response.status, `Created car successfully.`)
+  }
+
+  return await response.json();
+}
+
+export const deleteCarById = async (id: string): Promise<void> => {
+  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}/${id}`, {
+    method: 'DELETE',
+  });
 
   if (!response.ok) {
     throw new Error(`Failed to delete car by id: ${id} status: ${response.status}`);
+  } else {
+    console.log(response.status, `Deleted car succesfully. ${id}`)
   }
 }
 
@@ -227,23 +346,36 @@ export const deleteCarById = async (id: string): Promise<void> => {
 File: src/app/cars/car.hooks.ts
 ================
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteCarById, fetchCars } from "./car.api";
+import { createCar, deleteCarById, fetchCars } from "./car.api";
 import { toast } from "sonner";
+import { Car } from "./car.types";
 
 export function useCars() {
   const query = useQuery({
     queryKey: ['cars'],
     queryFn: fetchCars,
   });
-  
+
   console.log('Cars query state:', {
     data: query.data,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error
   });
-  
+
   return query;
+}
+
+export function useCarTableData() {
+  const { data, isLoading, isError, error, ...query } = useCars();
+
+  return {
+    ...query,
+    isLoading,
+    isError,
+    data: data ? transformCarsData(data) : [],
+    headers: ["Registration Number", "Make", "Model"]
+  }
 }
 
 export function useDeleteCarById() {
@@ -252,14 +384,14 @@ export function useDeleteCarById() {
   return useMutation({
     // The function that performs the delete
     mutationFn: (id: string) => deleteCarById(id),
-    
+
     // What to do if it succeeds
     onSuccess: () => {
       toast.success("Car deleted successfully");
       // This forces the list to refresh automatically
       queryClient.invalidateQueries({ queryKey: ['cars'] });
     },
-    
+
     // What to do if it fails
     onError: (error) => {
       toast.error(`Error deleting car: ${error}`);
@@ -267,11 +399,41 @@ export function useDeleteCarById() {
   });
 }
 
+export function useCreateCar() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    // The function that performs the delete
+    mutationFn: (car: Car) => createCar(car),
+
+    // What to do if it succeeds
+    onSuccess: () => {
+      toast.success("Car created successfully");
+      // This forces the list to refresh automatically
+      queryClient.invalidateQueries({ queryKey: ['cars'] });
+    },
+
+    // What to do if it fails
+    onError: (error) => {
+      toast.error(`Error creating car: ${error}`);
+    }
+  });
+}
+
+function transformCarsData(data: Car[]) {
+  return data.map(car => ({
+    ID: car.id,
+    RegistrationNumber: car.registrationNumber,
+    Make: car.make,
+    Model: car.model
+  }));
+}
+
 ================
 File: src/app/cars/car.types.ts
 ================
 export interface Car {
-  id: string
+  id?: string
   make: string
   model: string
   registrationNumber:string
@@ -282,32 +444,23 @@ File: src/app/cars/page.tsx
 ================
 'use client';
 
-import { DataTable } from "@/components/DataTable"
+import { DataTable } from "@/components/DataTable";
 import { Section } from "@/components/layout/Section";
-import { PageHeader } from "@/components/PageHeader"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { getTheme } from "@/lib/theme-config"
-import { Layout } from "@/modules/layout/Layout"
-import { Download, Plus } from "lucide-react"
-import { useCars, useDeleteCarById } from "./car.hooks"
+import { PageHeader } from "@/components/PageHeader";
+import { Button } from "@/components/ui/button";
+import { getTheme } from "@/lib/theme-config";
+import { Layout } from "@/modules/layout/Layout";
+import { Download, Plus } from "lucide-react";
+import { useState } from "react";
+import { useCarTableData as useCarsTableData, useDeleteCarById } from "./car.hooks";
+import { CreateCarModal } from "./modules/CreateCarModal";
 
 export default function Cars() {
   const theme = getTheme('green')
-  const cars = useCars();
   const deleteCarMutation = useDeleteCarById();
-  // const deleteCar = useDeleteCarById();
+  const cars = useCarsTableData();
 
-  // Define table headers
-  const headers = ["Registration Number", "Make", "Model"];
-
-  // Transform the data to match our headers
-  const transformedData = cars.data?.map(car => ({
-    ID: car.id,
-    RegistrationNumber: car.registrationNumber,
-    Make: car.make,
-    Model: car.model
-  })) || [];
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleRowClick = (item: any) => {
     // empty for now
@@ -315,8 +468,12 @@ export default function Cars() {
 
   const handleDeleteClick = (item: any) => {
     if (confirm("Are you sure you want to delete this car?")) {
-        deleteCarMutation.mutate(item.ID);
+      deleteCarMutation.mutate(item.ID);
     }
+  }
+
+  const handleCreateCarClick = (item: any) => {
+    setIsModalOpen(true);
   }
 
   return (
@@ -336,6 +493,7 @@ export default function Cars() {
               </Button>
               <Button
                 size="sm"
+                onClick={handleCreateCarClick}
                 className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
               >
                 <Plus className="mr-2 h-4 w-4" />
@@ -348,8 +506,8 @@ export default function Cars() {
         <Section className="py-6 animate-fade-in" containerSize="full">
           <div className="mt-6 animate-slide-down">
             <DataTable
-              headers={headers}
-              data={transformedData}
+              headers={cars.headers}
+              data={cars.data}
               description="cars"
               isLoading={cars.isLoading}
               isError={cars.isError}
@@ -361,6 +519,10 @@ export default function Cars() {
           </div>
         </Section>
       </div>
+      <CreateCarModal
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      />
     </Layout>
   )
 }
@@ -497,6 +659,7 @@ File: src/app/instructors/instructor.hooks.ts
 ================
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchInstructors } from "./instructor.api";
+import { Instructor } from "./instructor.types";
 
 export function useInstructors() {
   const query = useQuery({
@@ -512,6 +675,28 @@ export function useInstructors() {
   });
   
   return query;
+}
+
+export function useInstructorsTableData() {
+  const { data, isLoading, isError, error, ...query } = useInstructors();
+  
+    return {
+      ...query,
+      isLoading,
+      isError,
+      data: data ? transformInstructorsData(data) : [],
+      headers: ["Name", "Sure Name", "Email", "Phone Number"]
+    }
+}
+
+function transformInstructorsData(data: Instructor[]) {
+  return data.map(instructor => ({
+    ID: instructor.id,
+    Name: instructor.name,
+    SureName: instructor.sureName,
+    Email: instructor.email,
+    PhoneNumber: instructor.phoneNumber
+  }));
 }
 
 ================
@@ -530,30 +715,18 @@ File: src/app/instructors/page.tsx
 ================
 'use client';
 
-import { DataTable } from "@/components/DataTable"
+import { DataTable } from "@/components/DataTable";
 import { Section } from "@/components/layout/Section";
-import { PageHeader } from "@/components/PageHeader"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { getTheme } from "@/lib/theme-config"
-import { Layout } from "@/modules/layout/Layout"
-import { Download, Plus } from "lucide-react"
-import { useInstructors } from "./instructor.hooks";
+import { PageHeader } from "@/components/PageHeader";
+import { Button } from "@/components/ui/button";
+import { getTheme } from "@/lib/theme-config";
+import { Layout } from "@/modules/layout/Layout";
+import { Download, Plus } from "lucide-react";
+import { useInstructorsTableData } from "./instructor.hooks";
 
 export default function Instructors() {
   const theme = getTheme('green')
-  const instructors = useInstructors();
-
-  // Define table headers
-  const headers = ["Name", "Sure Name", "Email", "Phone Number"];
-
-  // Transform the data to match our headers
-  const transformedData = instructors.data?.map(instructor => ({
-    ID: instructor.id,
-    Name: instructor.name,
-    SureName: instructor.sureName,
-    Email: instructor.email
-  })) || [];
+  const instructors = useInstructorsTableData();
 
   const handleRowClick = (item: any) => {
     // empty for now
@@ -588,8 +761,8 @@ export default function Instructors() {
         <Section className="py-6 animate-fade-in" containerSize="full">
           <div className="mt-6 animate-slide-down">
             <DataTable
-              headers={headers}
-              data={transformedData}
+              headers={instructors.headers}
+              data={instructors.data}
               description="instructors"
               isLoading={instructors.isLoading}
               isError={instructors.isError}
@@ -772,22 +945,11 @@ import { Badge } from "@/components/ui/badge"
 import { getTheme } from "@/lib/theme-config"
 import { Layout } from "@/modules/layout/Layout"
 import { Download, Plus } from "lucide-react"
-import { useTrainees } from "./trainee.hooks"
+import { useTrainees, useTraineesTableData } from "./trainee.hooks"
 
 export default function Cars() {
   const theme = getTheme('green')
-  const trainees = useTrainees();
-
-  // Define table headers
-  const headers = ["Name", "Sure Name", "Email", "Phone Number"];
-
-  // Transform the data to match our headers
-  const transformedData = trainees.data?.map(trainee => ({
-    ID: trainee.id,
-    Name: trainee.name,
-    SureName: trainee.sureName,
-    Email: trainee.email
-  })) || [];
+  const trainees = useTraineesTableData();
 
   const handleRowClick = (item: any) => {
     // empty for now
@@ -822,8 +984,8 @@ export default function Cars() {
         <Section className="py-6 animate-fade-in" containerSize="full">
           <div className="mt-6 animate-slide-down">
             <DataTable
-              headers={headers}
-              data={transformedData}
+              headers={trainees.headers}
+              data={trainees.data}
               description="trainees"
               isLoading={trainees.isLoading}
               isError={trainees.isError}
@@ -865,6 +1027,7 @@ File: src/app/trainees/trainee.hooks.ts
 ================
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchTrainees } from "./trainee.api";
+import { Trainee } from "./trainee.types";
 
 export function useTrainees() {
   const query = useQuery({
@@ -880,6 +1043,28 @@ export function useTrainees() {
   });
   
   return query;
+}
+
+export function useTraineesTableData() {
+  const { data, isLoading, isError, error, ...query } = useTrainees();
+  
+    return {
+      ...query,
+      isLoading,
+      isError,
+      data: data ? transformTraineesData(data) : [],
+      headers: ["Name", "Sure Name", "Email", "Phone Number"]
+    }
+}
+
+function transformTraineesData(data: Trainee[]) {
+  return data.map(trainee => ({
+    ID: trainee.id,
+    Name: trainee.name,
+    SureName: trainee.sureName,
+    Email: trainee.email,
+    PhoneNumber: trainee.phoneNumber
+  }));
 }
 
 ================
@@ -7111,7 +7296,7 @@ export const DataTable = <T extends Record<string, any>,>({
 
   const handleDeleteClick = (item: T) => {
     if (onDeleteClick) {
-      console.log(item)
+      console.log('Deleting item', item)
       onDeleteClick(item);
     }
   }
@@ -7192,7 +7377,7 @@ const DataTableContent = <T extends Record<string, any>,>({
         {data.map((item, rowIndex) => (
           <TableRow
             key={`row-${rowIndex}-${String(item.id || rowIndex)}`}
-            className="cursor-pointer transition-colors hover:bg-green-100 dark:hover:bg-green-900/30"
+            className="cursor-pointer"
             onClick={() => handleRowClick(item)}
           >
             {headers.map((header, cellIndex) => {
@@ -7229,30 +7414,33 @@ const DataTableContent = <T extends Record<string, any>,>({
                 </TableCell>
               );
             })}
-            <TableCell> {/* w-10 class helps keep the cell small */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation(); // *** KEY: Prevent the parent row's onClick (handleRowClick) from firing ***
-                  // *** Call your delete function here ***
-                  // handleDelete(item.id); // Assuming 'item' has an 'id' property for deletion
-                }}
-                className="cursor-pointer rounded-full text-grey-600 hover:bg-grey-100 dark:text-grey-400 dark:hover:bg-grey-900/30 transition-colors"
-                title="Edit Row"
-              >
-                <EditNoteIcon className="h-5 w-5" />
-              </button>
-            </TableCell>
-            <TableCell>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteClick
-                }}
-                className="cursor-pointer rounded-full text-red-600 hover:bg-red-200 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors"
-                title="Delete Row"
-              >
-                <DeleteForeverIcon className="h-5 w-5" />
-              </button>
+            <TableCell className="w-10 margin-right-5">
+              <div className="flex justify-end space-x-2"> 
+                {/* Edit Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Assuming you have an onEditClick or similar prop here
+                    // onEditClick(item); 
+                  }}
+                  className="cursor-pointer p-1 rounded-full text-grey-600 hover:bg-grey-100 dark:text-grey-400 dark:hover:bg-grey-900/30 transition-colors"
+                  title="Edit Row"
+                >
+                  <EditNoteIcon className="h-5 w-5" />
+                </button>
+
+                {/* Delete Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(item);
+                  }}
+                  className="cursor-pointer p-1 rounded-full text-red-600 hover:bg-red-200 dark:text-red-400 dark:hover:bg-red-900/60 transition-colors"
+                  title="Delete Row"
+                >
+                  <DeleteForeverIcon className="h-5 w-5" />
+                </button>
+              </div>
             </TableCell>
           </TableRow>
         ))}
@@ -7366,6 +7554,44 @@ const TableFooter: FC<{
 
 const toCamelCase = (str: string): string => {
   return str.replace(' ', '')
+}
+
+================
+File: src/components/FormInputRow.tsx
+================
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+
+export function FormInputRow({
+  id,
+  labelText,
+  placeholder,
+  value,
+  onChange,
+  required = false,
+  type = 'text,',
+  className,
+  ...props
+}: FormInputRowProps) {
+  return (
+    <>
+      <Label htmlFor={id} className="text-right pt-3">
+        {labelText}
+      </Label>
+      <div className="col-span-3">
+        <Input
+          id={id}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          required={required}
+          type={type}
+          className={className}
+          {...props}
+        />
+      </div>
+    </>
+  );
 }
 
 ================
