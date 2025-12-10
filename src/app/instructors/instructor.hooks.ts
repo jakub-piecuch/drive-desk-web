@@ -25,17 +25,7 @@ export function useInstructorsTableData() {
       ...query,
       isLoading,
       isError,
-      data: data ? transformInstructorsData(data) : [],
+      data: data ? data : [],
       headers: ["Name", "Sure Name", "Email", "Phone Number"]
     }
-}
-
-function transformInstructorsData(data: Instructor[]) {
-  return data.map(instructor => ({
-    ID: instructor.id,
-    Name: instructor.name,
-    SureName: instructor.sureName,
-    Email: instructor.email,
-    PhoneNumber: instructor.phoneNumber
-  }));
 }

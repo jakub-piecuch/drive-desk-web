@@ -1,13 +1,5 @@
+import { EntityFormModal } from "@/components/CreateFormModal";
 import { FormInputRow } from "@/components/FormInputRow";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
 import { useEffect, useState } from 'react';
 import { toast } from "sonner";
 import { useCreateCar } from "../car.hooks";
@@ -48,7 +40,7 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
       {
         make: make,
         model: model,
-        registrationNumber: registrationNumber,
+        registrationNumber: registrationNumber
       },
       {
         onSuccess: () => {
@@ -59,53 +51,40 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] md:max-w-[600px] lg:max-w-[650px]">
-        <DialogHeader>
-          <DialogTitle>Create New Car</DialogTitle>
-          <DialogDescription>
-            Add a new Car for you school.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-start gap-4">
-              <FormInputRow
-                id="make"
-                labelText="Make"
-                placeholder="make..."
-                value={make}
-                onChange={(e) => setMake(e.target.value)}
-                required
-              />
-              <FormInputRow
-                id="model"
-                labelText="Model"
-                placeholder="model..."
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                required
-              />
-              <FormInputRow
-                id="registrationNumber"
-                labelText="Registration Number"
-                placeholder="registration number..."
-                value={registrationNumber}
-                onChange={(e) => setRegistrationNumber(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="submit"
-              disabled={isPending}
-            >
-              {isPending ? 'Creating...' : 'Create Car'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <EntityFormModal
+      title="Create New Car"
+      description="Enter the details for the new car."
+      isOpen={open}
+      onOpenChange={onOpenChange}
+      onSubmit={handleSubmit}
+      isLoading={isPending}
+    >
+      <div className="grid grid-cols-4 items-start gap-4">
+        <FormInputRow
+          id="make"
+          labelText="Make"
+          placeholder="make..."
+          value={make}
+          onChange={(e) => setMake(e.target.value)}
+          required
+        />
+        <FormInputRow
+          id="model"
+          labelText="Model"
+          placeholder="model..."
+          value={model}
+          onChange={(e) => setModel(e.target.value)}
+          required
+        />
+        <FormInputRow
+          id="registrationNumber"
+          labelText="Registration Number"
+          placeholder="registration number..."
+          value={registrationNumber}
+          onChange={(e) => setRegistrationNumber(e.target.value)}
+          required
+        />
+      </div>
+    </EntityFormModal>
   );
 }

@@ -1,13 +1,5 @@
+import { EntityFormModal } from "@/components/CreateFormModal";
 import { FormInputRow } from "@/components/FormInputRow";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
 import { useEffect, useState } from 'react';
 import { useUpdateCarById } from "../car.hooks";
 
@@ -70,24 +62,21 @@ export function UpdateCarModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] md:max-w-[600px] lg:max-w-[650px]">
-        <DialogHeader>
-          <DialogTitle>Update Car</DialogTitle>
-          <DialogDescription>
-            Update your car informations.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-start gap-4">
+        <EntityFormModal
+          title="Update Car"
+          description="Update your car informations."
+          isOpen={open}
+          onOpenChange={onOpenChange}
+          onSubmit={handleSubmit}
+          isLoading={isPending}
+        >
+          <div className="grid grid-cols-4 items-start gap-4">
               <FormInputRow
                 id="make"
                 labelText="Make"
                 placeholder={make}
                 value={make}
                 onChange={(e) => setMake(e.target.value)}
-                required
               />
               <FormInputRow
                 id="model"
@@ -95,7 +84,6 @@ export function UpdateCarModal({
                 placeholder={model}
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                required
               />
               <FormInputRow
                 id="registrationNumber"
@@ -103,20 +91,8 @@ export function UpdateCarModal({
                 placeholder={model}
                 value={registrationNumber}
                 onChange={(e) => setRegistrationNumber(e.target.value)}
-                required
               />
             </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="submit"
-              disabled={isPending}
-            >
-              {isPending ? 'Creating...' : 'Update Car'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </EntityFormModal>
   );
 }

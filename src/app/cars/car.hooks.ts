@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createCar, deleteCarById, fetchCars, getCarById, updateCarById } from "./car.api";
 import { toast } from "sonner";
-import { Car } from "./car.types";
+import { Car, CreateCar } from "./car.types";
 
 export function useCars() {
   const query = useQuery({
@@ -19,7 +19,7 @@ export function useCars() {
   return query;
 }
 
-export function useCarTableData() {
+export function useCarsTableData() {
   const { data, isLoading, isError, error, ...query } = useCars();
 
   return {
@@ -57,7 +57,7 @@ export function useCreateCar() {
 
   return useMutation({
     // The function that performs create
-    mutationFn: (car: Car) => createCar(car),
+    mutationFn: (car: CreateCar) => createCar(car),
 
     // What to do if it succeeds
     onSuccess: () => {

@@ -25,17 +25,7 @@ export function useTraineesTableData() {
       ...query,
       isLoading,
       isError,
-      data: data ? transformTraineesData(data) : [],
+      data: data ? data : [],
       headers: ["Name", "Sure Name", "Email", "Phone Number"]
     }
-}
-
-function transformTraineesData(data: Trainee[]) {
-  return data.map(trainee => ({
-    ID: trainee.id,
-    Name: trainee.name,
-    SureName: trainee.sureName,
-    Email: trainee.email,
-    PhoneNumber: trainee.phoneNumber
-  }));
 }

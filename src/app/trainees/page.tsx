@@ -46,8 +46,8 @@ export default function Cars() {
               description="trainees"
               isLoading={trainees.isLoading}
               isError={trainees.isError}
-              idField="ID"
-              searchField="Email"
+              idField="id"
+              searchField="email"
               onRowClick={handleRowClick} // Use our custom row click handler
             />
           </div>

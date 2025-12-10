@@ -7,7 +7,7 @@ interface FormInputRowProps {
   placeholder: string,
   value: string,
   onChange: (any: any) => void,
-  required: boolean,
+  required?: boolean,
   type?: string,
   className?: string
 }

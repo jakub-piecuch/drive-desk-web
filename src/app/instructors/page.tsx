@@ -46,9 +46,9 @@ export default function Instructors() {
               description="instructors"
               isLoading={instructors.isLoading}
               isError={instructors.isError}
-              idField="ID"
-              searchField="Email"
-              onRowClick={handleRowClick} // Use our custom row click handler
+              idField="id"
+              searchField="email"
+              onRowClick={handleRowClick}
             />
           </div>
         </Section>

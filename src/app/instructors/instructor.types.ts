@@ -5,3 +5,10 @@ export interface Instructor {
   email: string
   phoneNumber: string
 }
+
+export interface CreateInstructor {
+  name: string
+  sureName: string
+  email: string
+  phoneNumber: string
+}

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Layout } from "@/modules/layout/Layout";
 import { Download, Plus } from "lucide-react";
 import { useState } from "react";
-import { useCarTableData as useCarsTableData, useDeleteCarById, useUpdateCarById } from "./car.hooks";
+import { useCarsTableData, useDeleteCarById } from "./car.hooks";
 import { CreateCarModal } from "./modules/CreateCarModal";
 import { UpdateCarModal } from "./modules/UpdateCarModal";
 import { Car } from "./car.types";
@@ -36,7 +36,7 @@ export default function Cars() {
 
   const handleDeleteClick = (item: Car) => {
     if (confirm("Are you sure you want to delete this car?")) {
-      deleteCarMutation.mutate(item.id);
+      deleteCarMutation.mutate(item.id!);
     }
   }
 
@@ -90,7 +90,7 @@ export default function Cars() {
         onOpenChange={setIsCreateCarModalOpen}
       />
       <UpdateCarModal
-        id={currentItem.id} 
+        id={currentItem.id!} 
         make={currentItem.make}
         model={currentItem.model}
         registrationNumber={currentItem.registrationNumber}
