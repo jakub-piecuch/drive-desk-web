@@ -1,4 +1,4 @@
-import { EntityFormModal } from "@/components/CreateFormModal";
+import { EntityFormModal } from "@/components/EntityFormModal";
 import { FormInputRow } from "@/components/FormInputRow";
 import { useEffect, useState } from 'react';
 import { toast } from "sonner";

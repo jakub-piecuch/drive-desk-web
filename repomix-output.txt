@@ -137,6 +137,7 @@ src/
       tooltip.tsx
       use-toast.ts
     DataTable.tsx
+    EntityFormModal.tsx
     FormInputRow.tsx
     PageHeader.tsx
   config/
@@ -197,16 +198,8 @@ File: public/window.svg
 ================
 File: src/app/cars/modules/CreateCarModal.tsx
 ================
+import { EntityFormModal } from "@/components/EntityFormModal";
 import { FormInputRow } from "@/components/FormInputRow";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
 import { useEffect, useState } from 'react';
 import { toast } from "sonner";
 import { useCreateCar } from "../car.hooks";
@@ -247,7 +240,7 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
       {
         make: make,
         model: model,
-        registrationNumber: registrationNumber,
+        registrationNumber: registrationNumber
       },
       {
         onSuccess: () => {
@@ -258,70 +251,49 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] md:max-w-[600px] lg:max-w-[650px]">
-        <DialogHeader>
-          <DialogTitle>Create New Car</DialogTitle>
-          <DialogDescription>
-            Add a new Car for you school.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-start gap-4">
-              <FormInputRow
-                id="make"
-                labelText="Make"
-                placeholder="make..."
-                value={make}
-                onChange={(e) => setMake(e.target.value)}
-                required
-              />
-              <FormInputRow
-                id="model"
-                labelText="Model"
-                placeholder="model..."
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                required
-              />
-              <FormInputRow
-                id="registrationNumber"
-                labelText="Registration Number"
-                placeholder="registration number..."
-                value={registrationNumber}
-                onChange={(e) => setRegistrationNumber(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="submit"
-              disabled={isPending}
-            >
-              {isPending ? 'Creating...' : 'Create Car'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <EntityFormModal
+      title="Create New Car"
+      description="Enter the details for the new car."
+      isOpen={open}
+      onOpenChange={onOpenChange}
+      onSubmit={handleSubmit}
+      isLoading={isPending}
+    >
+      <div className="grid grid-cols-4 items-start gap-4">
+        <FormInputRow
+          id="make"
+          labelText="Make"
+          placeholder="make..."
+          value={make}
+          onChange={(e) => setMake(e.target.value)}
+          required
+        />
+        <FormInputRow
+          id="model"
+          labelText="Model"
+          placeholder="model..."
+          value={model}
+          onChange={(e) => setModel(e.target.value)}
+          required
+        />
+        <FormInputRow
+          id="registrationNumber"
+          labelText="Registration Number"
+          placeholder="registration number..."
+          value={registrationNumber}
+          onChange={(e) => setRegistrationNumber(e.target.value)}
+          required
+        />
+      </div>
+    </EntityFormModal>
   );
 }
 
 ================
 File: src/app/cars/modules/UpdateCarModal.tsx
 ================
+import { EntityFormModal } from "@/components/EntityFormModal";
 import { FormInputRow } from "@/components/FormInputRow";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
 import { useEffect, useState } from 'react';
 import { useUpdateCarById } from "../car.hooks";
 
@@ -384,24 +356,21 @@ export function UpdateCarModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] md:max-w-[600px] lg:max-w-[650px]">
-        <DialogHeader>
-          <DialogTitle>Update Car</DialogTitle>
-          <DialogDescription>
-            Update your car informations.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-start gap-4">
+        <EntityFormModal
+          title="Update Car"
+          description="Update your car informations."
+          isOpen={open}
+          onOpenChange={onOpenChange}
+          onSubmit={handleSubmit}
+          isLoading={isPending}
+        >
+          <div className="grid grid-cols-4 items-start gap-4">
               <FormInputRow
                 id="make"
                 labelText="Make"
                 placeholder={make}
                 value={make}
                 onChange={(e) => setMake(e.target.value)}
-                required
               />
               <FormInputRow
                 id="model"
@@ -409,7 +378,6 @@ export function UpdateCarModal({
                 placeholder={model}
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                required
               />
               <FormInputRow
                 id="registrationNumber"
@@ -417,21 +385,9 @@ export function UpdateCarModal({
                 placeholder={model}
                 value={registrationNumber}
                 onChange={(e) => setRegistrationNumber(e.target.value)}
-                required
               />
             </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="submit"
-              disabled={isPending}
-            >
-              {isPending ? 'Creating...' : 'Update Car'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </EntityFormModal>
   );
 }
 
@@ -522,7 +478,7 @@ File: src/app/cars/car.hooks.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createCar, deleteCarById, fetchCars, getCarById, updateCarById } from "./car.api";
 import { toast } from "sonner";
-import { Car } from "./car.types";
+import { Car, CreateCar } from "./car.types";
 
 export function useCars() {
   const query = useQuery({
@@ -578,7 +534,7 @@ export function useCreateCar() {
 
   return useMutation({
     // The function that performs create
-    mutationFn: (car: Car) => createCar(car),
+    mutationFn: (car: CreateCar) => createCar(car),
 
     // What to do if it succeeds
     onSuccess: () => {
@@ -626,7 +582,7 @@ export function useUpdateCarById() {
 File: src/app/cars/car.types.ts
 ================
 export interface Car {
-  id?: string
+  id: string
   make: string
   model: string
   registrationNumber: string
@@ -679,7 +635,7 @@ export default function Cars() {
 
   const handleDeleteClick = (item: Car) => {
     if (confirm("Are you sure you want to delete this car?")) {
-      deleteCarMutation.mutate(item.id);
+      deleteCarMutation.mutate(item.id!);
     }
   }
 
@@ -733,7 +689,7 @@ export default function Cars() {
         onOpenChange={setIsCreateCarModalOpen}
       />
       <UpdateCarModal
-        id={currentItem.id} 
+        id={currentItem.id!} 
         make={currentItem.make}
         model={currentItem.model}
         registrationNumber={currentItem.registrationNumber}
@@ -895,19 +851,9 @@ export function useInstructorsTableData() {
       ...query,
       isLoading,
       isError,
-      data: data ? transformInstructorsData(data) : [],
+      data: data ? data : [],
       headers: ["Name", "Sure Name", "Email", "Phone Number"]
     }
-}
-
-function transformInstructorsData(data: Instructor[]) {
-  return data.map(instructor => ({
-    ID: instructor.id,
-    Name: instructor.name,
-    SureName: instructor.sureName,
-    Email: instructor.email,
-    PhoneNumber: instructor.phoneNumber
-  }));
 }
 
 ================
@@ -915,6 +861,13 @@ File: src/app/instructors/instructor.types.ts
 ================
 export interface Instructor {
   id: string
+  name: string
+  sureName: string
+  email: string
+  phoneNumber: string
+}
+
+export interface CreateInstructor {
   name: string
   sureName: string
   email: string
@@ -972,9 +925,9 @@ export default function Instructors() {
               description="instructors"
               isLoading={instructors.isLoading}
               isError={instructors.isError}
-              idField="ID"
-              searchField="Email"
-              onRowClick={handleRowClick} // Use our custom row click handler
+              idField="id"
+              searchField="email"
+              onRowClick={handleRowClick}
             />
           </div>
         </Section>
@@ -1184,8 +1137,8 @@ export default function Cars() {
               description="trainees"
               isLoading={trainees.isLoading}
               isError={trainees.isError}
-              idField="ID"
-              searchField="Email"
+              idField="id"
+              searchField="email"
               onRowClick={handleRowClick} // Use our custom row click handler
             />
           </div>
@@ -1247,19 +1200,9 @@ export function useTraineesTableData() {
       ...query,
       isLoading,
       isError,
-      data: data ? transformTraineesData(data) : [],
+      data: data ? data : [],
       headers: ["Name", "Sure Name", "Email", "Phone Number"]
     }
-}
-
-function transformTraineesData(data: Trainee[]) {
-  return data.map(trainee => ({
-    ID: trainee.id,
-    Name: trainee.name,
-    SureName: trainee.sureName,
-    Email: trainee.email,
-    PhoneNumber: trainee.phoneNumber
-  }));
 }
 
 ================
@@ -1267,6 +1210,13 @@ File: src/app/trainees/trainee.types.ts
 ================
 export interface Trainee {
   id: string
+  name: string
+  sureName: string
+  email: string
+  phoneNumber: string
+}
+
+export interface CreateTrainee {
   name: string
   sureName: string
   email: string
@@ -7852,6 +7802,55 @@ const toCamelCase = (str: string): string => {
 }
 
 ================
+File: src/components/EntityFormModal.tsx
+================
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+
+interface EntityFormModalProps {
+  title: string;
+  description: string;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (event: React.FormEvent) => void;
+  children: React.ReactNode; // This holds the actual form fields
+  isLoading: boolean;
+}
+
+export function EntityFormModal({ 
+  title, description, isOpen, onOpenChange, onSubmit, children, isLoading 
+}: EntityFormModalProps) {
+  // ... basic Dialog logic and styling ...
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={onSubmit}>
+          <div className="grid gap-4 py-4">
+            {children}
+          </div>
+          <DialogFooter>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+================
 File: src/components/FormInputRow.tsx
 ================
 import { Input } from "./ui/input";
@@ -7863,7 +7862,7 @@ interface FormInputRowProps {
   placeholder: string,
   value: string,
   onChange: (any: any) => void,
-  required: boolean,
+  required?: boolean,
   type?: string,
   className?: string
 }
