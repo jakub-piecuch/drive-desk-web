@@ -76,7 +76,7 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
         href={to}
         className={cn(
           "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-200 transition-all hover:text-white dark:text-gray-200 dark:hover:text-white",
-          isActive ? "bg-secondary text-white" : "hover:bg-gray-100 dark:hover:bg-gray-800",
+          isActive ? "bg-primary text-white" : "hover:bg-secondary dark:hover:bg-secondary",
           collapsed && !isMobileView && "justify-center px-2"
         )}
       >
@@ -97,7 +97,7 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
           {(!collapsed || isMobileView) && <span className="text-lg font-semibold">DriveDesk</span>}
           {!isMobileView && (
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               className="h-8 w-8 p-0"
               onClick={() => setCollapsed(!collapsed)}
@@ -141,7 +141,6 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
       {/* Sign out button - always at the bottom */}
       <div className="mt-auto pt-4">
         <Button
-          variant="lightGray"
           onClick={() => signOut({ callbackUrl: '/' })}
           className={cn("flex mb-2 items-center justify-center gap-2 w-full", collapsed && !isMobileView && "px-2")}
         >

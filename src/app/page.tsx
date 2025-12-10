@@ -2,10 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { getTheme } from "@/lib/theme-config";
 
 export default function UnderConstruction() {
-  const theme = getTheme('green');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 to-gray-900 flex flex-col items-center justify-center p-4 text-gray-200">
@@ -15,7 +13,6 @@ export default function UnderConstruction() {
         <Link href="/login">
           <Button 
             variant="outline" 
-            className={`border-emerald-400 ${theme.colors.light} hover:bg-gray-800`}
           >
             Sign In
           </Button>
@@ -32,14 +29,12 @@ export default function UnderConstruction() {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
-            className={`${theme.colors.primary} ${theme.colors.text} border-0`}
           >
             Get Notified When We Launch
           </Button>
           <Link href="/login">
             <Button 
               variant="outline" 
-              className={`${theme.colors.light} hover:bg-gray-700`}
             >
               Sign In
             </Button>

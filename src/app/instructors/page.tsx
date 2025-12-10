@@ -4,13 +4,11 @@ import { DataTable } from "@/components/DataTable";
 import { Section } from "@/components/layout/Section";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { getTheme } from "@/lib/theme-config";
 import { Layout } from "@/modules/layout/Layout";
 import { Download, Plus } from "lucide-react";
 import { useInstructorsTableData } from "./instructor.hooks";
 
 export default function Instructors() {
-  const theme = getTheme('green')
   const instructors = useInstructorsTableData();
 
   const handleRowClick = (item: any) => {
@@ -27,14 +25,12 @@ export default function Instructors() {
               <Button
                 variant="lightGray"
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.light}`}
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Instructor

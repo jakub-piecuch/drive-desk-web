@@ -40,6 +40,7 @@ interface Props<T extends Record<string, any>> {
   searchField?: keyof T; // Allow customizing which field to search in
   onRowClick?: (item: T) => void;
   onDeleteClick?: (itme: T) => void;
+  onEditClick?: (itme: T) => void;
   basePath?: string; // Base path for navigation when clicking a row
 }
 
@@ -53,6 +54,7 @@ export const DataTable = <T extends Record<string, any>,>({
   searchField,
   onRowClick,
   onDeleteClick,
+  onEditClick,
   basePath
 }: Props<T>) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -111,6 +113,13 @@ export const DataTable = <T extends Record<string, any>,>({
     }
   }
 
+  const handleEditClick = (item: T) => {
+    if (onEditClick) {
+      console.log('Editing item', item)
+      onEditClick(item);
+    }
+  }
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -135,6 +144,7 @@ export const DataTable = <T extends Record<string, any>,>({
             headers={headers}
             handleRowClick={handleRowClick}
             handleDeleteClick={handleDeleteClick}
+            handleEditClick={handleEditClick}
           />
         ) : (
           <EmptyState />
@@ -162,12 +172,14 @@ const DataTableContent = <T extends Record<string, any>,>({
   data,
   headers,
   handleRowClick,
-  handleDeleteClick
+  handleDeleteClick,
+  handleEditClick
 }: {
   data: T[];
   headers: string[];
   handleRowClick: (item: T) => void;
   handleDeleteClick: (item: T) => void;
+  handleEditClick: (item: T) => void;
 }) => {
   return (
     <Table>
@@ -230,10 +242,9 @@ const DataTableContent = <T extends Record<string, any>,>({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    // Assuming you have an onEditClick or similar prop here
-                    // onEditClick(item); 
+                    handleEditClick(item);
                   }}
-                  className="cursor-pointer p-1 rounded-full text-grey-600 hover:bg-grey-100 dark:text-grey-400 dark:hover:bg-grey-900/30 transition-colors"
+                  className="cursor-pointer p-1 rounded-full text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-primary/50 transition-colors"
                   title="Edit Row"
                 >
                   <EditNoteIcon className="h-5 w-5" />
@@ -245,7 +256,7 @@ const DataTableContent = <T extends Record<string, any>,>({
                     e.stopPropagation();
                     handleDeleteClick(item);
                   }}
-                  className="cursor-pointer p-1 rounded-full text-red-600 hover:bg-red-200 dark:text-red-400 dark:hover:bg-red-900/60 transition-colors"
+                  className="cursor-pointer p-1 rounded-full text-red-600 hover:bg-red-200 dark:text-red-400 dark:hover:bg-destructive/60 transition-colors"
                   title="Delete Row"
                 >
                   <DeleteForeverIcon className="h-5 w-5" />

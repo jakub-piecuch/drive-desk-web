@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
+  /* --background: #ffffff;
   --foreground: #171717;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -28,16 +28,16 @@
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --chart-5: oklch(0.769 0.188 70.08); */
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
+  /* --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: oklch(0.708 0 0); */
 }
 
 @theme inline {
@@ -83,8 +83,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* --background: #0a0a0a;
+    --foreground: #ededed; */
   }
 }
 
@@ -104,83 +104,99 @@ body {
   --popover-foreground: oklch(0.97 0 0);
 
   /* Accents and primary colors - adding some color! */
-  --primary: oklch(0.6 0.18 250); /* Blue-purple */
-  --primary-foreground: oklch(0.97 0 0);
-  --secondary: oklch(0.2 0.05 240); /* Dark blue-purple */
+  --primary: oklch(55.894% 0.12514 145.761);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(46.274% 0.0899 146.11);
+  /* Dark blue-purple */
   --secondary-foreground: oklch(0.97 0 0);
 
   /* Supporting colors */
-  --muted: oklch(0.18 0 0);
+  --muted: oklch(40.017% 0.08022 145.858);
   --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.18 0.08 250); /* Subtle accent color */
-  --accent-foreground: oklch(0.97 0 0);
+  --accent: oklch(58.039% 0.12027 146.145);
+  /* Subtle accent color */
+  --accent-foreground: oklch(97.015% 0.00011 271.152);
 
   /* Functional colors */
-  --destructive: oklch(0.65 0.15 25); /* Reddish */
+  --destructive: oklch(0.65 0.15 25);
+  /* Reddish */
   --destructive-foreground: oklch(0.97 0 0);
   --border: oklch(0.3 0 0);
   --input: oklch(0.18 0 0);
-  --ring: oklch(0.5 0.15 250); /* Highlight color for focus */
+  --ring: oklch(67.552% 0.17103 153.826);
+  /* Highlight color for focus */
 
   /* Chart colors - vibrant and distinct */
-  --chart-1: oklch(0.65 0.2 250); /* Vibrant blue-purple */
-  --chart-2: oklch(0.6 0.18 190); /* Teal */
-  --chart-3: oklch(0.65 0.2 150); /* Green */
-  --chart-4: oklch(0.65 0.23 80); /* Gold/yellow */
-  --chart-5: oklch(0.65 0.23 30); /* Orange-red */
+  --chart-1: oklch(87.693% 0.22441 153.309);
+  /* Vibrant blue-purple */
+  --chart-2: oklch(0.6 0.18 190);
+  /* Teal */
+  --chart-3: oklch(0.65 0.2 150);
+  /* Green */
+  --chart-4: oklch(0.65 0.23 80);
+  /* Gold/yellow */
+  --chart-5: oklch(0.65 0.23 30);
+  /* Orange-red */
 
   /* Sidebar specific colors */
-  --sidebar: oklch(0.08 0 0); /* Slightly darker than background */
+  --sidebar: oklch(0.08 0 0);
+  /* Slightly darker than background */
   --sidebar-foreground: oklch(0.97 0 0);
-  --sidebar-primary: oklch(0.6 0.18 250); /* Match primary */
+  --sidebar-primary: oklch(81.004% 0.21328 151.979);
+  /* Match primary */
   --sidebar-primary-foreground: oklch(0.97 0 0);
-  --sidebar-accent: oklch(0.15 0.05 250); /* Subtle accent */
+  --sidebar-accent: oklch(0.623 0.17 145);
+  /* Subtle accent */
   --sidebar-accent-foreground: oklch(0.97 0 0);
   --sidebar-border: oklch(0.15 0 0);
-  --sidebar-ring: oklch(0.4 0.12 250);
+  --sidebar-ring: oklch(53.91% 0.14787 150.186);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 @layer utilities {
+
   /* Custom animations */
   .animate-fade-in {
     animation: fade-in 0.3s ease-in-out forwards;
   }
-  
+
   .animate-slide-up {
     animation: slide-up 0.4s ease-out forwards;
   }
-  
+
   .animate-pulse-once {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) 1;
   }
-  
+
   /* Animation delays */
   .animation-delay-100 {
     animation-delay: 100ms;
   }
-  
+
   .animation-delay-200 {
     animation-delay: 200ms;
   }
-  
+
   .animation-delay-300 {
     animation-delay: 300ms;
   }
+
   .bg-grid-pattern {
     background-size: 20px 20px;
-    background-image: 
+    background-image:
       linear-gradient(to right, var(--primary-foreground/5) 1px, transparent 1px),
       linear-gradient(to bottom, var(--primary-foreground/5) 1px, transparent 1px);
   }
+
   .glass-card {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(8px);
@@ -193,6 +209,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -203,6 +220,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

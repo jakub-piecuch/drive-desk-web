@@ -4,7 +4,6 @@ import { DataTable } from "@/components/DataTable";
 import { Section } from "@/components/layout/Section";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { getTheme } from "@/lib/theme-config";
 import { Layout } from "@/modules/layout/Layout";
 import { Download, Plus } from "lucide-react";
 import { useState } from "react";
@@ -12,15 +11,19 @@ import { useCarTableData as useCarsTableData, useDeleteCarById } from "./car.hoo
 import { CreateCarModal } from "./modules/CreateCarModal";
 
 export default function Cars() {
-  const theme = getTheme('green')
   const deleteCarMutation = useDeleteCarById();
   const cars = useCarsTableData();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateCarModalOpen, setIsCreateCarModalOpen] = useState(false);
+  const [isUpdateCarModalOpen, setIsUpdateCarModalOpen] = useState(false);
 
   const handleRowClick = (item: any) => {
     // empty for now
   };
+
+  const handleEditClick = (item: any) => {
+    setIsUpdateCarModalOpen(true);
+  }
 
   const handleDeleteClick = (item: any) => {
     if (confirm("Are you sure you want to delete this car?")) {
@@ -29,7 +32,7 @@ export default function Cars() {
   }
 
   const handleCreateCarClick = (item: any) => {
-    setIsModalOpen(true);
+    setIsCreateCarModalOpen(true);
   }
 
   return (
@@ -40,9 +43,7 @@ export default function Cars() {
           actions={
             <>
               <Button
-                variant="lightGray"
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.light}`}
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export
@@ -50,7 +51,6 @@ export default function Cars() {
               <Button
                 size="sm"
                 onClick={handleCreateCarClick}
-                className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Car
@@ -71,13 +71,14 @@ export default function Cars() {
               searchField="RegistrationNumber"
               onRowClick={handleRowClick}
               onDeleteClick={handleDeleteClick} // Use our custom row click handler
+              onEditClick={handleEditClick}
             />
           </div>
         </Section>
       </div>
       <CreateCarModal
-        isOpen={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        isOpen={isCreateCarModalOpen}
+        onOpenChange={setIsCreateCarModalOpen}
       />
     </Layout>
   )

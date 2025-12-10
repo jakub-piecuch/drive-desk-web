@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { getTheme } from "@/lib/theme-config";
 import { useState } from 'react';
 import { toast } from "sonner";
 import { useCreateCar } from "../car.hooks";
@@ -19,7 +18,6 @@ interface CreateCarModalProps {
 }
 
 export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalProps) {
-  const theme = getTheme();
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
   const [registrationNumber, setRegistrationNumber] = useState('');
@@ -100,7 +98,10 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={isPending} className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}>
+            <Button
+              type="submit"
+              disabled={isPending}
+            >
               {isPending ? 'Creating...' : 'Create Car'}
             </Button>
           </DialogFooter>

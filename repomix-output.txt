@@ -146,8 +146,6 @@ src/
     useSidebarPosition.tsx
     useToast.ts
   lib/
-    theme-config.ts
-    theme.ts
     utils.ts
   modules/
     layout/
@@ -208,7 +206,6 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { getTheme } from "@/lib/theme-config";
 import { useState } from 'react';
 import { toast } from "sonner";
 import { useCreateCar } from "../car.hooks";
@@ -219,11 +216,18 @@ interface CreateCarModalProps {
 }
 
 export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalProps) {
-  const theme = getTheme();
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
   const [registrationNumber, setRegistrationNumber] = useState('');
   const { mutate: createCar, isPending } = useCreateCar();
+
+  const handleOpenChange = (newOpenState: boolean) => {
+    onOpenChange(newOpenState);
+    if (!newOpenState) {
+      // If the new state is 'false' (closing the modal), reset the form
+      resetForm();
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -238,12 +242,23 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
         make: make,
         model: model,
         registrationNumber: registrationNumber,
+      },
+      {
+        onSuccess: () => {
+          handleOpenChange(false);
+        }
       }
     );
   };
 
+  const resetForm = () => {
+    setMake('');
+    setModel('');
+    setRegistrationNumber('');
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px] md:max-w-[600px] lg:max-w-[650px]">
         <DialogHeader>
           <DialogTitle>Create New Car</DialogTitle>
@@ -256,7 +271,7 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
             <div className="grid grid-cols-4 items-start gap-4">
               <FormInputRow
                 id="make"
-                labelText="Make:"
+                labelText="Make"
                 placeholder="make..."
                 value={make}
                 onChange={(e) => setMake(e.target.value)}
@@ -264,7 +279,7 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
               />
               <FormInputRow
                 id="model"
-                labelText="Model:"
+                labelText="Model"
                 placeholder="model..."
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
@@ -272,7 +287,7 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
               />
               <FormInputRow
                 id="registrationNumber"
-                labelText="Registration Number:"
+                labelText="Registration Number"
                 placeholder="registration number..."
                 value={registrationNumber}
                 onChange={(e) => setRegistrationNumber(e.target.value)}
@@ -281,7 +296,10 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={isPending} className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}>
+            <Button
+              type="submit"
+              disabled={isPending}
+            >
               {isPending ? 'Creating...' : 'Create Car'}
             </Button>
           </DialogFooter>
@@ -295,7 +313,7 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
 File: src/app/cars/car.api.ts
 ================
 import { RESOURCE_HOST } from "@/config/env.config";
-import { Car } from "./car.types";
+import { Car, CreateCar } from "./car.types";
 
 const API_DOMAIN_NAME = '/api/cars';
 
@@ -312,9 +330,39 @@ export const fetchCars = async (): Promise<Car[]> => {
   return data;
 };
 
-export const createCar = async (car: Car): Promise<Car> => {
+export const getCarById = async (id: string): Promise<Car> => {
+  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}/${id}`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch car by id: ${id}. Status: ${response.status}`);
+  } else {
+    console.log(response.status, `Created fetched successfully.`)
+  }
+
+  return await response.json();
+}
+
+export const createCar = async (car: CreateCar): Promise<Car> => {
   const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}`, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(car),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to create car. Status: ${response.status}`);
+  } else {
+    console.log(response.status, `Created car successfully.`)
+  }
+
+  return await response.json();
+}
+
+export const updateCarById = async (car: Car): Promise<Car> => {
+  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}/${car.id}`, {
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -346,7 +394,7 @@ export const deleteCarById = async (id: string): Promise<void> => {
 File: src/app/cars/car.hooks.ts
 ================
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createCar, deleteCarById, fetchCars } from "./car.api";
+import { createCar, deleteCarById, fetchCars, getCarById, updateCarById } from "./car.api";
 import { toast } from "sonner";
 import { Car } from "./car.types";
 
@@ -403,7 +451,7 @@ export function useCreateCar() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    // The function that performs the delete
+    // The function that performs create
     mutationFn: (car: Car) => createCar(car),
 
     // What to do if it succeeds
@@ -416,6 +464,34 @@ export function useCreateCar() {
     // What to do if it fails
     onError: (error) => {
       toast.error(`Error creating car: ${error}`);
+    }
+  });
+}
+
+export function useGetCarById() {
+  return useMutation({
+    // The function that performs fetcg
+    mutationFn: (id: string) => getCarById(id),
+  });
+}
+
+export function useUpdateCarById() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    // The function that performs update
+    mutationFn: (car: Car) => updateCarById(car),
+
+    // What to do if it succeeds
+    onSuccess: () => {
+      toast.success("Car updated successfully");
+      // This forces the list to refresh automatically
+      queryClient.invalidateQueries({ queryKey: ['cars'] });
+    },
+
+    // What to do if it fails
+    onError: (error) => {
+      toast.error(`Error updating car: ${error}`);
     }
   });
 }
@@ -436,7 +512,13 @@ export interface Car {
   id?: string
   make: string
   model: string
-  registrationNumber:string
+  registrationNumber: string
+}
+
+export interface CreateCar {
+  make: string
+  model: string
+  registrationNumber: string
 }
 
 ================
@@ -448,7 +530,6 @@ import { DataTable } from "@/components/DataTable";
 import { Section } from "@/components/layout/Section";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { getTheme } from "@/lib/theme-config";
 import { Layout } from "@/modules/layout/Layout";
 import { Download, Plus } from "lucide-react";
 import { useState } from "react";
@@ -456,15 +537,19 @@ import { useCarTableData as useCarsTableData, useDeleteCarById } from "./car.hoo
 import { CreateCarModal } from "./modules/CreateCarModal";
 
 export default function Cars() {
-  const theme = getTheme('green')
   const deleteCarMutation = useDeleteCarById();
   const cars = useCarsTableData();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateCarModalOpen, setIsCreateCarModalOpen] = useState(false);
+  const [isUpdateCarModalOpen, setIsUpdateCarModalOpen] = useState(false);
 
   const handleRowClick = (item: any) => {
     // empty for now
   };
+
+  const handleEditClick = (item: any) => {
+    setIsUpdateCarModalOpen(true);
+  }
 
   const handleDeleteClick = (item: any) => {
     if (confirm("Are you sure you want to delete this car?")) {
@@ -473,7 +558,7 @@ export default function Cars() {
   }
 
   const handleCreateCarClick = (item: any) => {
-    setIsModalOpen(true);
+    setIsCreateCarModalOpen(true);
   }
 
   return (
@@ -486,7 +571,6 @@ export default function Cars() {
               <Button
                 variant="lightGray"
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.light}`}
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export
@@ -494,7 +578,6 @@ export default function Cars() {
               <Button
                 size="sm"
                 onClick={handleCreateCarClick}
-                className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Car
@@ -515,13 +598,14 @@ export default function Cars() {
               searchField="RegistrationNumber"
               onRowClick={handleRowClick}
               onDeleteClick={handleDeleteClick} // Use our custom row click handler
+              onEditClick={handleEditClick}
             />
           </div>
         </Section>
       </div>
       <CreateCarModal
-        isOpen={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        isOpen={isCreateCarModalOpen}
+        onOpenChange={setIsCreateCarModalOpen}
       />
     </Layout>
   )
@@ -535,13 +619,10 @@ import { Section } from "@/components/layout/Section"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Download } from "lucide-react"
-import { getTheme } from "@/lib/theme-config"
 import { Layout } from "@/modules/layout/Layout"
 
 
 export default function Dashboard() {
-  const theme = getTheme('green')
-
   return (
     <Layout>
       <div className="p-6 sm:p-6 space-y-6">
@@ -552,14 +633,12 @@ export default function Dashboard() {
               <Button
                 variant="lightGray"
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.light}`}
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 New Report
@@ -719,13 +798,11 @@ import { DataTable } from "@/components/DataTable";
 import { Section } from "@/components/layout/Section";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { getTheme } from "@/lib/theme-config";
 import { Layout } from "@/modules/layout/Layout";
 import { Download, Plus } from "lucide-react";
 import { useInstructorsTableData } from "./instructor.hooks";
 
 export default function Instructors() {
-  const theme = getTheme('green')
   const instructors = useInstructorsTableData();
 
   const handleRowClick = (item: any) => {
@@ -742,14 +819,12 @@ export default function Instructors() {
               <Button
                 variant="lightGray"
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.light}`}
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Instructor
@@ -894,12 +969,10 @@ File: src/app/schedules/page.tsx
 ================
 import { PageHeader } from "@/components/PageHeader"
 import { Button } from "@/components/ui/button"
-import { getTheme } from "@/lib/theme-config"
 import { Layout } from "@/modules/layout/Layout"
 import { Download, Plus } from "lucide-react"
 
 export default function Dashboard() {
-  const theme = getTheme('green')
 
   return (
     <Layout>
@@ -912,14 +985,12 @@ export default function Dashboard() {
               <Button
                 variant="lightGray"
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.light}`}
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 New Report
@@ -937,18 +1008,15 @@ File: src/app/trainees/page.tsx
 ================
 'use client';
 
-import { DataTable } from "@/components/DataTable"
+import { DataTable } from "@/components/DataTable";
 import { Section } from "@/components/layout/Section";
-import { PageHeader } from "@/components/PageHeader"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { getTheme } from "@/lib/theme-config"
-import { Layout } from "@/modules/layout/Layout"
-import { Download, Plus } from "lucide-react"
-import { useTrainees, useTraineesTableData } from "./trainee.hooks"
+import { PageHeader } from "@/components/PageHeader";
+import { Button } from "@/components/ui/button";
+import { Layout } from "@/modules/layout/Layout";
+import { Download, Plus } from "lucide-react";
+import { useTraineesTableData } from "./trainee.hooks";
 
 export default function Cars() {
-  const theme = getTheme('green')
   const trainees = useTraineesTableData();
 
   const handleRowClick = (item: any) => {
@@ -965,14 +1033,12 @@ export default function Cars() {
               <Button
                 variant="lightGray"
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.light}`}
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button
                 size="sm"
-                className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Trainee
@@ -1088,7 +1154,7 @@ File: src/app/globals.css
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
+  /* --background: #ffffff;
   --foreground: #171717;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -1111,16 +1177,16 @@ File: src/app/globals.css
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --chart-5: oklch(0.769 0.188 70.08); */
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
+  /* --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: oklch(0.708 0 0); */
 }
 
 @theme inline {
@@ -1166,8 +1232,8 @@ File: src/app/globals.css
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* --background: #0a0a0a;
+    --foreground: #ededed; */
   }
 }
 
@@ -1187,83 +1253,99 @@ body {
   --popover-foreground: oklch(0.97 0 0);
 
   /* Accents and primary colors - adding some color! */
-  --primary: oklch(0.6 0.18 250); /* Blue-purple */
-  --primary-foreground: oklch(0.97 0 0);
-  --secondary: oklch(0.2 0.05 240); /* Dark blue-purple */
+  --primary: oklch(0.623 0.17 145);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(46.274% 0.0899 146.11);
+  /* Dark blue-purple */
   --secondary-foreground: oklch(0.97 0 0);
 
   /* Supporting colors */
   --muted: oklch(0.18 0 0);
   --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.18 0.08 250); /* Subtle accent color */
+  --accent: oklch(0.18 0.08 250);
+  /* Subtle accent color */
   --accent-foreground: oklch(0.97 0 0);
 
   /* Functional colors */
-  --destructive: oklch(0.65 0.15 25); /* Reddish */
+  --destructive: oklch(0.65 0.15 25);
+  /* Reddish */
   --destructive-foreground: oklch(0.97 0 0);
   --border: oklch(0.3 0 0);
   --input: oklch(0.18 0 0);
-  --ring: oklch(0.5 0.15 250); /* Highlight color for focus */
+  --ring: oklch(67.552% 0.17103 153.826);
+  /* Highlight color for focus */
 
   /* Chart colors - vibrant and distinct */
-  --chart-1: oklch(0.65 0.2 250); /* Vibrant blue-purple */
-  --chart-2: oklch(0.6 0.18 190); /* Teal */
-  --chart-3: oklch(0.65 0.2 150); /* Green */
-  --chart-4: oklch(0.65 0.23 80); /* Gold/yellow */
-  --chart-5: oklch(0.65 0.23 30); /* Orange-red */
+  --chart-1: oklch(87.693% 0.22441 153.309);
+  /* Vibrant blue-purple */
+  --chart-2: oklch(0.6 0.18 190);
+  /* Teal */
+  --chart-3: oklch(0.65 0.2 150);
+  /* Green */
+  --chart-4: oklch(0.65 0.23 80);
+  /* Gold/yellow */
+  --chart-5: oklch(0.65 0.23 30);
+  /* Orange-red */
 
   /* Sidebar specific colors */
-  --sidebar: oklch(0.08 0 0); /* Slightly darker than background */
+  --sidebar: oklch(0.08 0 0);
+  /* Slightly darker than background */
   --sidebar-foreground: oklch(0.97 0 0);
-  --sidebar-primary: oklch(0.6 0.18 250); /* Match primary */
+  --sidebar-primary: oklch(81.004% 0.21328 151.979);
+  /* Match primary */
   --sidebar-primary-foreground: oklch(0.97 0 0);
-  --sidebar-accent: oklch(0.15 0.05 250); /* Subtle accent */
+  --sidebar-accent: oklch(23.003% 0.07109 145.613);
+  /* Subtle accent */
   --sidebar-accent-foreground: oklch(0.97 0 0);
   --sidebar-border: oklch(0.15 0 0);
-  --sidebar-ring: oklch(0.4 0.12 250);
+  --sidebar-ring: oklch(53.91% 0.14787 150.186);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 @layer utilities {
+
   /* Custom animations */
   .animate-fade-in {
     animation: fade-in 0.3s ease-in-out forwards;
   }
-  
+
   .animate-slide-up {
     animation: slide-up 0.4s ease-out forwards;
   }
-  
+
   .animate-pulse-once {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) 1;
   }
-  
+
   /* Animation delays */
   .animation-delay-100 {
     animation-delay: 100ms;
   }
-  
+
   .animation-delay-200 {
     animation-delay: 200ms;
   }
-  
+
   .animation-delay-300 {
     animation-delay: 300ms;
   }
+
   .bg-grid-pattern {
     background-size: 20px 20px;
-    background-image: 
+    background-image:
       linear-gradient(to right, var(--primary-foreground/5) 1px, transparent 1px),
       linear-gradient(to bottom, var(--primary-foreground/5) 1px, transparent 1px);
   }
+
   .glass-card {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(8px);
@@ -1276,6 +1358,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -1286,6 +1369,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1351,10 +1435,8 @@ File: src/app/page.tsx
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { getTheme } from "@/lib/theme-config";
 
 export default function UnderConstruction() {
-  const theme = getTheme('green');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 to-gray-900 flex flex-col items-center justify-center p-4 text-gray-200">
@@ -1364,7 +1446,6 @@ export default function UnderConstruction() {
         <Link href="/login">
           <Button 
             variant="outline" 
-            className={`border-emerald-400 ${theme.colors.light} hover:bg-gray-800`}
           >
             Sign In
           </Button>
@@ -1381,14 +1462,12 @@ export default function UnderConstruction() {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
-            className={`${theme.colors.primary} ${theme.colors.text} border-0`}
           >
             Get Notified When We Launch
           </Button>
           <Link href="/login">
             <Button 
               variant="outline" 
-              className={`${theme.colors.light} hover:bg-gray-700`}
             >
               Sign In
             </Button>
@@ -1928,27 +2007,28 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
-        default: "bg-blue-900 border-blue-500 text-primary-foreground border hover:bg-blue-700, hover:border-blue-400",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
-          "bg-red-900 text-destructive-foreground border border-red-500 hover:bg-red-800 hover:border-red-400",
+          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-accent",
+          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
         secondary:
-          "bg-secondary text-secondary-foreground border border-secondary-foreground hover:bg-secondary/80 hover:border-secondary-foreground",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost:
+          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
-        gradient: "bg-gradient-to-r from-primary to-primary/70 text-primary-foreground border border-primary hover:from-primary/90 hover:to-primary/60 hover:border-primary",
-        lightGray: "bg-gray-800 text-gray-100 border border-gray-600 hover:bg-gray-700 hover:border-gray-500 hover:text-gray-100 transition-colors",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "h-9 px-4 py-2 has-[>svg]:px-3",
+        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        icon: "size-9",
+        "icon-sm": "size-8",
+        "icon-lg": "size-10",
       },
     },
     defaultVariants: {
@@ -1958,27 +2038,26 @@ const buttonVariants = cva(
   }
 )
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean
-}
+function Button({
+  className,
+  variant,
+  size,
+  asChild = false,
+  ...props
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+  }) {
+  const Comp = asChild ? Slot : "button"
 
-const Button = React.memo(
-  React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant, size, asChild = false, ...props }, ref) => {
-      const Comp = asChild ? Slot : "button"
-      return (
-        <Comp
-          className={cn(buttonVariants({ variant, size, className }))}
-          ref={ref}
-          {...props}
-        />
-      )
-    }
+  return (
+    <Comp
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
   )
-)
-Button.displayName = "Button"
+}
 
 export { Button, buttonVariants }
 
@@ -7230,6 +7309,7 @@ interface Props<T extends Record<string, any>> {
   searchField?: keyof T; // Allow customizing which field to search in
   onRowClick?: (item: T) => void;
   onDeleteClick?: (itme: T) => void;
+  onEditClick?: (itme: T) => void;
   basePath?: string; // Base path for navigation when clicking a row
 }
 
@@ -7243,6 +7323,7 @@ export const DataTable = <T extends Record<string, any>,>({
   searchField,
   onRowClick,
   onDeleteClick,
+  onEditClick,
   basePath
 }: Props<T>) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -7301,6 +7382,13 @@ export const DataTable = <T extends Record<string, any>,>({
     }
   }
 
+  const handleEditClick = (item: T) => {
+    if (onEditClick) {
+      console.log('Editing item', item)
+      onEditClick(item);
+    }
+  }
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -7325,6 +7413,7 @@ export const DataTable = <T extends Record<string, any>,>({
             headers={headers}
             handleRowClick={handleRowClick}
             handleDeleteClick={handleDeleteClick}
+            handleEditClick={handleEditClick}
           />
         ) : (
           <EmptyState />
@@ -7352,12 +7441,14 @@ const DataTableContent = <T extends Record<string, any>,>({
   data,
   headers,
   handleRowClick,
-  handleDeleteClick
+  handleDeleteClick,
+  handleEditClick
 }: {
   data: T[];
   headers: string[];
   handleRowClick: (item: T) => void;
   handleDeleteClick: (item: T) => void;
+  handleEditClick: (item: T) => void;
 }) => {
   return (
     <Table>
@@ -7420,10 +7511,9 @@ const DataTableContent = <T extends Record<string, any>,>({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    // Assuming you have an onEditClick or similar prop here
-                    // onEditClick(item); 
+                    handleEditClick(item);
                   }}
-                  className="cursor-pointer p-1 rounded-full text-grey-600 hover:bg-grey-100 dark:text-grey-400 dark:hover:bg-grey-900/30 transition-colors"
+                  className="cursor-pointer p-1 rounded-full text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900/60 transition-colors"
                   title="Edit Row"
                 >
                   <EditNoteIcon className="h-5 w-5" />
@@ -7562,6 +7652,17 @@ File: src/components/FormInputRow.tsx
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
+interface FormInputRowProps {
+  id: string,
+  labelText: string,
+  placeholder: string,
+  value: string,
+  onChange: (any: any) => void,
+  required: boolean,
+  type?: string,
+  className?: string
+}
+
 export function FormInputRow({
   id,
   labelText,
@@ -7569,14 +7670,14 @@ export function FormInputRow({
   value,
   onChange,
   required = false,
-  type = 'text,',
+  type = 'text',
   className,
   ...props
 }: FormInputRowProps) {
   return (
     <>
       <Label htmlFor={id} className="text-right pt-3">
-        {labelText}
+        {labelText+':'}
       </Label>
       <div className="col-span-3">
         <Input
@@ -7948,119 +8049,6 @@ function useToast() {
 }
 
 export { useToast, toast }
-
-================
-File: src/lib/theme-config.ts
-================
-// Theme configuration
-// This file allows us to define color themes that can be easily swapped
-
-export type ThemeColor = {
-  name: string;
-  colors: {
-    primary: string;   // Main accent color
-    hover: string;     // Hover state
-    light: string;     // Lighter version for text/borders
-    dark: string;      // Darker version
-    text: string; 
-  };
-}
-
-// Available themes
-export const themes: Record<string, ThemeColor> = {
-  green: {
-    name: "Green",
-    colors: {
-      primary: "bg-emerald-600 border-emerald-500",
-      hover: "hover:bg-emerald-700 hover:border-emerald-500",
-      light: "text-emerald-400 border-emerald-400",
-      dark: "bg-emerald-800",
-      text: "text-white",
-    }
-  },
-  blue: {
-    name: "Blue",
-    colors: {
-      primary: "bg-blue-600",
-      hover: "hover:bg-blue-700",
-      light: "text-blue-400 border-blue-400",
-      dark: "bg-blue-800",
-      text: "text-white",
-    }
-  },
-  purple: {
-    name: "Purple",
-    colors: {
-      primary: "bg-purple-600",
-      hover: "hover:bg-purple-700",
-      light: "text-purple-400 border-purple-400",
-      dark: "bg-purple-800",
-      text: "text-white",
-    }
-  },
-  amber: {
-    name: "Amber",
-    colors: {
-      primary: "bg-amber-600",
-      hover: "hover:bg-amber-700",
-      light: "text-amber-400 border-amber-400",
-      dark: "bg-amber-800",
-      text: "text-gray-900",
-
-    }
-  },
-  rose: {
-    name: "Rose",
-    colors: {
-      primary: "bg-rose-600",
-      hover: "hover:bg-rose-700",
-      light: "text-rose-400 border-rose-400",
-      dark: "bg-rose-800",
-      text: "text-white",
-    }
-  }
-};
-
-// Default theme - now explicitly set to green
-export const defaultTheme: string = "green";
-
-// Get a theme by name, falling back to default if not found
-export function getTheme(themeName?: string): ThemeColor {
-  return themes[themeName || defaultTheme] || themes[defaultTheme];
-}
-
-================
-File: src/lib/theme.ts
-================
-// theme.ts
-export const theme = {
-    colors: {
-      primary: {
-        50: 'var(--color-primary-50)',
-        100: 'var(--color-primary-100)',
-        // ... other shades
-        900: 'var(--color-primary-900)',
-      },
-      // Add more color categories
-    },
-    borderRadius: {
-      sm: 'var(--radius-sm)',
-      md: 'var(--radius-md)',
-      lg: 'var(--radius-lg)',
-      xl: 'var(--radius-xl)'
-    },
-    spacing: {
-      // Custom spacing values if needed beyond Tailwind defaults
-    },
-    typography: {
-      // Custom font sizes, weights, etc.
-    }
-  }
-  
-  // Add type definitions
-  export type ThemeColors = typeof theme.colors;
-  export type ThemeSpacing = typeof theme.spacing;
-  export type ThemeTypography = typeof theme.typography;
 
 ================
 File: src/lib/utils.ts
@@ -8517,7 +8505,7 @@ File: package.json
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slider": "^1.2.3",
-    "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-switch": "^1.1.3",
     "@radix-ui/react-tabs": "^1.1.3",
     "@radix-ui/react-toast": "^1.2.6",
