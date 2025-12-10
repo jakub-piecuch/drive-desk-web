@@ -22,7 +22,7 @@ export const getCarById = async (id: string): Promise<Car> => {
   if (!response.ok) {
     throw new Error(`Failed to fetch car by id: ${id}. Status: ${response.status}`);
   } else {
-    console.log(response.status, `Created fetched successfully.`)
+    console.log(response.status, `Fetched car: ${response.json()}.`)
   }
 
   return await response.json();
@@ -58,7 +58,7 @@ export const updateCarById = async (car: Car): Promise<Car> => {
   if (!response.ok) {
     throw new Error(`Failed to create car. Status: ${response.status}`);
   } else {
-    console.log(response.status, `Created car successfully.`)
+    console.log(response.status, `Updated car successfully.`)
   }
 
   return await response.json();

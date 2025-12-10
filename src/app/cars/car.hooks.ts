@@ -26,8 +26,8 @@ export function useCarTableData() {
     ...query,
     isLoading,
     isError,
-    data: data ? transformCarsData(data) : [],
-    headers: ["Registration Number", "Make", "Model"]
+    data: data ? data : [],
+    headers: ["Make", "Model", "Registration Number"]
   }
 }
 
@@ -99,13 +99,4 @@ export function useUpdateCarById() {
       toast.error(`Error updating car: ${error}`);
     }
   });
-}
-
-function transformCarsData(data: Car[]) {
-  return data.map(car => ({
-    ID: car.id,
-    RegistrationNumber: car.registrationNumber,
-    Make: car.make,
-    Model: car.model
-  }));
 }

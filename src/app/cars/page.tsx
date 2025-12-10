@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Layout } from "@/modules/layout/Layout";
 import { Download, Plus } from "lucide-react";
 import { useState } from "react";
-import { useCarTableData as useCarsTableData, useDeleteCarById } from "./car.hooks";
+import { useCarTableData as useCarsTableData, useDeleteCarById, useUpdateCarById } from "./car.hooks";
 import { CreateCarModal } from "./modules/CreateCarModal";
+import { UpdateCarModal } from "./modules/UpdateCarModal";
+import { Car } from "./car.types";
 
 export default function Cars() {
   const deleteCarMutation = useDeleteCarById();
@@ -16,22 +18,29 @@ export default function Cars() {
 
   const [isCreateCarModalOpen, setIsCreateCarModalOpen] = useState(false);
   const [isUpdateCarModalOpen, setIsUpdateCarModalOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState<Car>({
+    id: '',
+    make: '',
+    model: '',
+    registrationNumber: ''
+  });
 
   const handleRowClick = (item: any) => {
     // empty for now
   };
 
-  const handleEditClick = (item: any) => {
+  const handleEditClick = (item: Car) => {  
+    setCurrentItem(item)
     setIsUpdateCarModalOpen(true);
   }
 
-  const handleDeleteClick = (item: any) => {
+  const handleDeleteClick = (item: Car) => {
     if (confirm("Are you sure you want to delete this car?")) {
-      deleteCarMutation.mutate(item.ID);
+      deleteCarMutation.mutate(item.id);
     }
   }
 
-  const handleCreateCarClick = (item: any) => {
+  const handleCreateCarClick = () => {
     setIsCreateCarModalOpen(true);
   }
 
@@ -67,8 +76,8 @@ export default function Cars() {
               description="cars"
               isLoading={cars.isLoading}
               isError={cars.isError}
-              idField="ID"
-              searchField="RegistrationNumber"
+              idField="id"
+              searchField="registrationNumber"
               onRowClick={handleRowClick}
               onDeleteClick={handleDeleteClick} // Use our custom row click handler
               onEditClick={handleEditClick}
@@ -79,6 +88,14 @@ export default function Cars() {
       <CreateCarModal
         isOpen={isCreateCarModalOpen}
         onOpenChange={setIsCreateCarModalOpen}
+      />
+      <UpdateCarModal
+        id={currentItem.id} 
+        make={currentItem.make}
+        model={currentItem.model}
+        registrationNumber={currentItem.registrationNumber}
+        isOpen={isUpdateCarModalOpen} 
+        onOpenChange={setIsUpdateCarModalOpen}
       />
     </Layout>
   )

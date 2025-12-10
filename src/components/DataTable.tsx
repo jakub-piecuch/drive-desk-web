@@ -39,8 +39,8 @@ interface Props<T extends Record<string, any>> {
   idField?: keyof T; // Allow customizing which field to use as ID
   searchField?: keyof T; // Allow customizing which field to search in
   onRowClick?: (item: T) => void;
-  onDeleteClick?: (itme: T) => void;
-  onEditClick?: (itme: T) => void;
+  onDeleteClick?: (item: T) => void;
+  onEditClick?: (item: T) => void;
   basePath?: string; // Base path for navigation when clicking a row
 }
 
@@ -115,7 +115,7 @@ export const DataTable = <T extends Record<string, any>,>({
 
   const handleEditClick = (item: T) => {
     if (onEditClick) {
-      console.log('Editing item', item)
+      console.log('Start Editing item', item)
       onEditClick(item);
     }
   }
@@ -237,7 +237,7 @@ const DataTableContent = <T extends Record<string, any>,>({
               );
             })}
             <TableCell className="w-10 margin-right-5">
-              <div className="flex justify-end space-x-2"> 
+              <div className="flex justify-end space-x-2">
                 {/* Edit Button */}
                 <button
                   onClick={(e) => {
@@ -374,5 +374,8 @@ const TableFooter: FC<{
   };
 
 const toCamelCase = (str: string): string => {
-  return str.replace(' ', '')
+  const firstCharLower = str.charAt(0).toLowerCase();
+  const restOfString = str.slice(1);
+  
+  return (firstCharLower + restOfString).replace(' ', '')
 }
