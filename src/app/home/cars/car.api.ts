@@ -4,7 +4,7 @@ import { Car, CreateCar } from "./car.types";
 const API_DOMAIN_NAME = '/api/cars';
 
 export const fetchCars = async (): Promise<Car[]> => {
-  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}`);
+  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}`);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch cars: ${response.status}`);
@@ -17,7 +17,7 @@ export const fetchCars = async (): Promise<Car[]> => {
 };
 
 export const getCarById = async (id: string): Promise<Car> => {
-  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}/${id}`);
+  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}/${id}`);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch car by id: ${id}. Status: ${response.status}`);
@@ -29,7 +29,7 @@ export const getCarById = async (id: string): Promise<Car> => {
 }
 
 export const createCar = async (car: CreateCar): Promise<Car> => {
-  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}`, {
+  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ export const createCar = async (car: CreateCar): Promise<Car> => {
 }
 
 export const updateCarById = async (car: Car): Promise<Car> => {
-  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}/${car.id}`, {
+  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}/${car.id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ export const updateCarById = async (car: Car): Promise<Car> => {
 }
 
 export const deleteCarById = async (id: string): Promise<void> => {
-  const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}/${id}`, {
+  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}/${id}`, {
     method: 'DELETE',
   });
 

@@ -1,14 +1,12 @@
-import { PageHeader } from "@/components/PageHeader"
+import { PageHeader } from "@/components/modules/elements/PageHeader"
 import { Button } from "@/components/ui/button"
-import { Layout } from "@/modules/layout/Layout"
 import { Download, Plus } from "lucide-react"
 
 export default function Dashboard() {
 
   return (
-    <Layout>
+    <>
       <div className="p-6 sm:p-6 space-y-6">
-
         <PageHeader
           title="Schedules"
           actions={
@@ -29,6 +27,6 @@ export default function Dashboard() {
           }
         />
       </div>
-    </Layout>
+    </>
   )
 }

@@ -1,3 +1,5 @@
+'use client';
+
 // import { useState } from "react";
 // import Link from "next/link";
 // import { useRouter } from "next/navigation";
@@ -8,42 +10,43 @@
 // import { toast } from "sonner";
 // import { GetServerSideProps } from "next";
 
-// export default function Login() {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [loading, setLoading] = useState(false);
-//   const router = useRouter();
+export default function Login() {
+  //   const [email, setEmail] = useState("");
+  //   const [password, setPassword] = useState("");
+  //   const [loading, setLoading] = useState(false);
+  //   const router = useRouter();
 
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-    
-//     try {
-//       setLoading(true);
-//       const result = await signIn("credentials", {
-//         redirect: false,
-//         email,
-//         password,
-//       });
-      
-//       if (result?.error) {
-//         if (result.error === "CredentialsSignin") {
-//           toast.error("Invalid email or password. Please try again.");
-//         } else {
-//           toast.error(result.error || "Invalid credentials");
-//         }
-//         setLoading(false);
-//       } else {
-//         toast.success("Login successful!");
-//         router.push("/dashboard");
-//       }
-//     } catch (error) {
-//       console.error("Login error:", error);
-//       toast.error("An unexpected error occurred");
-//       setLoading(false);
-//     }
-//   };
+  //   const handleSubmit = async (e: React.FormEvent) => {
+  //     e.preventDefault();
 
-//   return (
+  //     try {
+  //       setLoading(true);
+  //       const result = await signIn("credentials", {
+  //         redirect: false,
+  //         email,
+  //         password,
+  //       });
+
+  //       if (result?.error) {
+  //         if (result.error === "CredentialsSignin") {
+  //           toast.error("Invalid email or password. Please try again.");
+  //         } else {
+  //           toast.error(result.error || "Invalid credentials");
+  //         }
+  //         setLoading(false);
+  //       } else {
+  //         toast.success("Login successful!");
+  //         router.push("/dashboard");
+  //       }
+  //     } catch (error) {
+  //       console.error("Login error:", error);
+  //       toast.error("An unexpected error occurred");
+  //       setLoading(false);
+  //     }
+  //   };
+
+  return (<></>)
+}
 //     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 p-6">
 //       <Card className="w-full max-w-md glass-card">
 //         <CardHeader className="space-y-1 text-center">

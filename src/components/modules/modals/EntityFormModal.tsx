@@ -21,7 +21,6 @@ interface EntityFormModalProps {
 export function EntityFormModal({ 
   title, description, isOpen, onOpenChange, onSubmit, children, isLoading 
 }: EntityFormModalProps) {
-  // ... basic Dialog logic and styling ...
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>

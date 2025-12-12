@@ -1,7 +1,7 @@
-import { EntityFormModal } from "@/components/EntityFormModal";
-import { FormInputRow } from "@/components/FormInputRow";
+import { EntityFormModal } from "@/components/modules/modals/EntityFormModal";
 import { useEffect, useState } from 'react';
 import { useUpdateCarById } from "../car.hooks";
+import { FormInputRow } from "@/components/modules/elements/FormInputRow";
 
 interface UpdateCarModalProps {
   id: string;

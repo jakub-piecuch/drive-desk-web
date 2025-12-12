@@ -1,10 +1,11 @@
 import { RESOURCE_HOST } from "@/config/env.config";
-import { Instructor } from "./instructor.types";
+import { Trainee } from "./trainee.types";
 
-const API_DOMAIN_NAME = '/api/instructors';
 
-export const fetchInstructors = async (): Promise<Instructor[]> => {
-    const response = await fetch(`${RESOURCE_HOST}${API_DOMAIN_NAME}`);
+const API_DOMAIN_NAME = '/api/trainees'
+
+export const fetchTrainees = async (): Promise<Trainee[]> => {
+    const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}`);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch ${API_DOMAIN_NAME}: ${response.status}`);

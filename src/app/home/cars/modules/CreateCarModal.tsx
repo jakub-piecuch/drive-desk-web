@@ -1,8 +1,8 @@
-import { EntityFormModal } from "@/components/EntityFormModal";
-import { FormInputRow } from "@/components/FormInputRow";
+import { EntityFormModal } from "@/components/modules/modals/EntityFormModal";
 import { useEffect, useState } from 'react';
 import { toast } from "sonner";
 import { useCreateCar } from "../car.hooks";
+import { FormInputRow } from "@/components/modules/elements/FormInputRow";
 
 interface CreateCarModalProps {
   isOpen: boolean;
@@ -13,7 +13,7 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
   const [registrationNumber, setRegistrationNumber] = useState('');
-  const { mutate: createCar, isPending } = useCreateCar();
+  const { mutate: createCar, isPending, error} = useCreateCar();
 
   useEffect(() => {
     if (open) {
@@ -64,7 +64,7 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
           id="make"
           labelText="Make"
           placeholder="make..."
-          value={make}
+          value= {make} 
           onChange={(e) => setMake(e.target.value)}
           required
         />

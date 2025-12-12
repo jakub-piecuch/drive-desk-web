@@ -106,7 +106,7 @@ body {
   /* Accents and primary colors - adding some color! */
   --primary: oklch(55.894% 0.12514 145.761);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(46.274% 0.0899 146.11);
+  --secondary: oklch(43.113% 0.08195 146.431);
   /* Dark blue-purple */
   --secondary-foreground: oklch(0.97 0 0);
 
@@ -193,8 +193,8 @@ body {
   .bg-grid-pattern {
     background-size: 20px 20px;
     background-image:
-      linear-gradient(to right, var(--primary-foreground/5) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--primary-foreground/5) 1px, transparent 1px);
+      linear-gradient(to right, var(--primary-foreground\/5) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--primary-foreground\/5) 1px, transparent 1px);
   }
 
   .glass-card {

@@ -116,11 +116,11 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
               {collapsed && !isMobileView ? "" : "Main"}
             </p>
             <div className="space-y-1">
-              <NavItem to="/dashboard" icon={HomeIcon} label="Dashboard" />
-              <NavItem to="/schedules" icon={Calendar} label="Schedules" />
-              <NavItem to="/cars" icon={Car} label="Cars" />
-              <NavItem to="/instructors" icon={HardHat} label="Instructors" />
-              <NavItem to="/trainees" icon={Train} label="Trainees" />
+              <NavItem to="/home/dashboard" icon={HomeIcon} label="Dashboard" />
+              <NavItem to="/home/schedules" icon={Calendar} label="Schedules" />
+              <NavItem to="/home/cars" icon={Car} label="Cars" />
+              <NavItem to="/home/instructors" icon={HardHat} label="Instructors" />
+              <NavItem to="/home/trainees" icon={Train} label="Trainees" />
             </div>
           </div>
 

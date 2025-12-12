@@ -1,7 +1,7 @@
 "use client";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/modules/sidebar/AppSidebar";
+import { AppSidebar } from "@/components/modules/layout/AppSidebar";
 import { useIsMobile } from "@/hooks/useMobile";
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {

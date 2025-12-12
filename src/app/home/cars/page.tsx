@@ -1,16 +1,15 @@
 'use client';
 
-import { DataTable } from "@/components/DataTable";
 import { Section } from "@/components/layout/Section";
-import { PageHeader } from "@/components/PageHeader";
+import { DataTable } from "@/components/modules/elements/DataTable";
+import { PageHeader } from "@/components/modules/elements/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Layout } from "@/modules/layout/Layout";
 import { Download, Plus } from "lucide-react";
 import { useState } from "react";
 import { useCarsTableData, useDeleteCarById } from "./car.hooks";
+import { Car } from "./car.types";
 import { CreateCarModal } from "./modules/CreateCarModal";
 import { UpdateCarModal } from "./modules/UpdateCarModal";
-import { Car } from "./car.types";
 
 export default function Cars() {
   const deleteCarMutation = useDeleteCarById();
@@ -29,7 +28,7 @@ export default function Cars() {
     // empty for now
   };
 
-  const handleEditClick = (item: Car) => {  
+  const handleEditClick = (item: Car) => {
     setCurrentItem(item)
     setIsUpdateCarModalOpen(true);
   }
@@ -45,7 +44,7 @@ export default function Cars() {
   }
 
   return (
-    <Layout>
+    <>
       <div className="p-6 sm:p-6 space-y-6">
         <PageHeader
           title="Cars"
@@ -77,7 +76,7 @@ export default function Cars() {
               isLoading={cars.isLoading}
               isError={cars.isError}
               idField="id"
-              searchField="registrationNumber"
+              searchField="make"
               onRowClick={handleRowClick}
               onDeleteClick={handleDeleteClick} // Use our custom row click handler
               onEditClick={handleEditClick}
@@ -90,13 +89,13 @@ export default function Cars() {
         onOpenChange={setIsCreateCarModalOpen}
       />
       <UpdateCarModal
-        id={currentItem.id!} 
+        id={currentItem.id!}
         make={currentItem.make}
         model={currentItem.model}
         registrationNumber={currentItem.registrationNumber}
-        isOpen={isUpdateCarModalOpen} 
+        isOpen={isUpdateCarModalOpen}
         onOpenChange={setIsUpdateCarModalOpen}
       />
-    </Layout>
+    </>
   )
 }
