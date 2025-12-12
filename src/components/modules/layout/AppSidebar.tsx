@@ -11,7 +11,6 @@ import {
   CircleUserRound,
   HardHat,
   HomeIcon,
-  HousePlus,
   LogOut,
   Menu,
   Train
