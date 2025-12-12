@@ -3,7 +3,7 @@
 import { DataTable } from "@/components/modules/elements/DataTable";
 import { Section } from "@/components/layout/Section";
 import { PageHeader } from "@/components/modules/elements/PageHeader";
-import { Button } from "@/components/ui/button";
+import Button from "@mui/material/Button";
 import { Layout } from "@/components/modules/layout/Layout";
 import { Download, Plus } from "lucide-react";
 import { useInstructorsTableData } from "./instructor.hooks";

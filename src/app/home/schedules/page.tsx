@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/modules/elements/PageHeader"
-import { Button } from "@/components/ui/button"
+import Button from "@mui/material/Button"
 import { Download, Plus } from "lucide-react"
 
 export default function Dashboard() {
@@ -12,13 +12,13 @@ export default function Dashboard() {
           actions={
             <>
               <Button
-                size="sm"
+                variant="contained"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button
-                size="sm"
+                variant="contained"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 New Report

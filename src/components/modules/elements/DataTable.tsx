@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardFooter
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import Button from "@mui/material/Button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {

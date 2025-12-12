@@ -3,13 +3,13 @@
 import { Section } from "@/components/layout/Section";
 import { DataTable } from "@/components/modules/elements/DataTable";
 import { PageHeader } from "@/components/modules/elements/PageHeader";
-import { Button } from "@/components/ui/button";
 import { Download, Plus } from "lucide-react";
 import { useState } from "react";
 import { useCarsTableData, useDeleteCarById } from "./car.hooks";
 import { Car } from "./car.types";
 import { CreateCarModal } from "./modules/CreateCarModal";
 import { UpdateCarModal } from "./modules/UpdateCarModal";
+import Button from "@mui/material/Button";
 
 export default function Cars() {
   const deleteCarMutation = useDeleteCarById();
@@ -51,13 +51,13 @@ export default function Cars() {
           actions={
             <>
               <Button
-                size="sm"
+                variant="contained"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button
-                size="sm"
+                variant="contained"
                 onClick={handleCreateCarClick}
               >
                 <Plus className="mr-2 h-4 w-4" />

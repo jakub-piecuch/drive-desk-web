@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useMobile";
 import { cn } from "@/lib/utils";
+import Button from "@mui/material/Button";
 import {
   Calendar,
   Car,
@@ -96,8 +96,6 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
           {(!collapsed || isMobileView) && <span className="text-lg font-semibold">DriveDesk</span>}
           {!isMobileView && (
             <Button
-              variant="outline"
-              size="sm"
               className="h-8 w-8 p-0"
               onClick={() => setCollapsed(!collapsed)}
             >
@@ -159,7 +157,7 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
           <span className="text-lg font-semibold">DriveDesk</span>
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="shrink-0">
+              <Button className="shrink-0">
                 <Menu className="h-4 w-4" />
               </Button>
             </SheetTrigger>

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import Button from "@mui/material/Button";
 import {
   Dialog,
   DialogContent,
@@ -18,8 +18,8 @@ interface EntityFormModalProps {
   isLoading: boolean;
 }
 
-export function EntityFormModal({ 
-  title, description, isOpen, onOpenChange, onSubmit, children, isLoading 
+export function EntityFormModal({
+  title, description, isOpen, onOpenChange, onSubmit, children, isLoading
 }: EntityFormModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

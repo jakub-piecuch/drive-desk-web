@@ -1,10 +1,9 @@
 'use client';
 
-import { DataTable } from "@/components/modules/elements/DataTable";
 import { Section } from "@/components/layout/Section";
+import { DataTable } from "@/components/modules/elements/DataTable";
 import { PageHeader } from "@/components/modules/elements/PageHeader";
-import { Button } from "@/components/ui/button";
-import { Layout } from "@/components/modules/layout/Layout";
+import Button from "@mui/material/Button";
 import { Download, Plus } from "lucide-react";
 import { useTraineesTableData } from "./trainee.hooks";
 
@@ -23,13 +22,11 @@ export default function Cars() {
           actions={
             <>
               <Button
-                size="sm"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button
-                size="sm"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Trainee
