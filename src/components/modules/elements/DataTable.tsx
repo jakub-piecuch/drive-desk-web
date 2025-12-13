@@ -1,24 +1,10 @@
 "use client";
 
+import SearchIcon from '@mui/icons-material/Search';
 import React, { FC, useState } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardFooter
-} from "@/components/ui/card";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Button from "@mui/material/Button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
@@ -29,9 +15,26 @@ import {
 import { useRouter } from "next/navigation";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditNoteIcon from '@mui/icons-material/EditNote';
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import TextField from "@mui/material/TextField";
+import Stack from '@mui/material/Stack';
+import TableContainer from '@mui/material/TableContainer';
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import TableBody from '@mui/material/TableBody';
+import InputAdornment from '@mui/material/InputAdornment';
+import OutlinedInput from '@mui/material/OutlinedInput';
+
+interface TableHeader {
+  key: string;      // Object property name (lowercase)
+  label: string;    // Display name (capitalized)
+}
 
 interface Props<T extends Record<string, any>> {
-  headers: string[];
+  headers: TableHeader[];
   data: T[];
   description?: string;
   isLoading: boolean;
@@ -121,21 +124,64 @@ export const DataTable = <T extends Record<string, any>,>({
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="mt-2 relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder={`Search ${description}...`}
-            className="pl-8 w-full md:w-80"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </CardHeader>
-
+    <Card variant="outlined">
+      <Stack sx={{ p: 4, pl: 2, pb: 0 }}>
+        <OutlinedInput
+          size='small'
+          placeholder="Search cars..."
+          startAdornment={
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          }
+          sx={{
+            borderColor: 'grey.100',
+            maxWidth: { xs: '100%', sm: 400 },
+            backgroundColor: 'grey.700'
+          }}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </Stack>
       <CardContent>
+        <TableContainer>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                {headers.map((header) => (
+                  <TableCell key={header.key} align='left'>
+                    {header.label}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((item, index) => (
+                <TableRow
+                  key={item.id || index}
+                  sx={{ '&:hover': { bgcolor: 'action.hover' } }}
+                >
+                  {headers.map((header) => (
+                    <TableCell key={header.key} align='left'>
+                      {item[header.key]}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+
+              {data.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={headers.length} align="center">
+                    No data available
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+
+        </TableContainer>
+      </CardContent>
+
+      {/* <CardContent>
         {isError ? (<ErrorState />) : isLoading ? (
           <LoadingRows />
         ) : currentData.length > 0 ? (
@@ -149,9 +195,9 @@ export const DataTable = <T extends Record<string, any>,>({
         ) : (
           <EmptyState />
         )}
-      </CardContent>
+      </CardContent> */}
 
-      {filteredData.length > 0 && (
+      {/* {filteredData.length > 0 && (
         <TableFooter
           indexOfFirstItem={indexOfFirstItem}
           indexOfLastItem={indexOfLastItem}
@@ -162,7 +208,7 @@ export const DataTable = <T extends Record<string, any>,>({
           currentPage={currentPage}
           totalPages={totalPages}
         />
-      )}
+      )} */}
     </Card>
   );
 };
@@ -376,6 +422,6 @@ const TableFooter: FC<{
 const toCamelCase = (str: string): string => {
   const firstCharLower = str.charAt(0).toLowerCase();
   const restOfString = str.slice(1);
-  
+
   return (firstCharLower + restOfString).replace(' ', '')
 }

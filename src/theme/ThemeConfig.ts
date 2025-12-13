@@ -1,60 +1,77 @@
 import { createTheme } from '@mui/material/styles';
-import { green } from '@mui/material/colors';
+
+const paperColor = '#222222'
 
 export const theme = createTheme({
-  colorSchemes: {
-    dark: {
-      palette: {        
-        // KLUCZOWE: Definicja kolorów bazowych dla całej strony
-        background: {
-          // Ten kolor tła ustawia CssBaseline dla znacznika <body>
-          default: '#636363', // Bardzo jasnoszary, żeby nie było całkowicie biało
-          paper: '#FFFFFF',    // Kolor tła dla komponentów takich jak Card, Paper, Dialog
-        },
-
-        // KLUCZOWE: Definicja domyślnych kolorów tekstu
-        text: {
-          primary: '#171717', // Domyślny kolor tekstu (niemal czarny)
-          secondary: '#4B5563', // Kolor dla mniej ważnych tekstów
-        },
-
-        // 2. Twoje kolory akcentujące
-        primary: {
-          main: '#5EB567', 
-        },
-        // secondary: {
-        //   main: '#38BDF8',
-        // },
-      },
-
-      // 3. Globalne style komponentów
-      components: {
-        // ... tutaj możesz dodawać swoje globalne modyfikacje dla Button, TextField, etc.
-        MuiCssBaseline: {
-          styleOverrides: {
-            // Możesz dodać style do body, które nadpiszą resztki
-            body: {
-              // Użyj czcionki zdefiniowanej przez Next.js (z layout.tsx)
-              fontFamily: 'latin',
-            }
+  shape: {
+    borderRadius: 6
+  },
+  typography: {
+    fontFamily: ''
+  },
+  components: {
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 6, // And this
           }
         }
-      },
+      }
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#171717', // Default border color
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#5EB567', // Hover border color
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#5EB567', // Focused border color
+          },
+        }
+      }
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderBottom: '1px solid #282828'
+        },
+        head: {  // Targets only header cells
+          color: '#858585', // Your primary green
+          fontWeight: 'bold', // Optional: make headers bold
+        },
+        body: {
+          // fontWeight: 'bold',
+        },
+        stickyHeader: {
+          backgroundColor: paperColor
+        }
+      }
+    },
+    MuiButton: {
+      styleOverrides: {
+      }
+    }
+  },
+  colorSchemes: {
+    dark: {
+      palette: {
+        divider: '#282828',
+        background: {
+          default: '#1a1a1a',
+          paper: paperColor
+        },
+        primary: {
+          main: '#3c8843',
+        },
+        grey: {
+          700: '#1a1a1a',
+          900: '#171717'
+        }
+      }
     }
   }
-
-  // colorSchemes: {
-  //   dark: {
-  //     palette: {
-  //       primary: {
-  //         light: green[200],
-  //         main: green[400],
-  //         dark: green[600],
-  //       },
-  //       background: {
-  //         default: "#f8fafc"
-  //       }
-  //     }
-  //   }
-  // }
 });

@@ -2,11 +2,6 @@
 
 @plugin "tailwindcss-animate";
 
-:root {
-  --radius: 0.625rem;
-}
-
-
 @layer utilities {
 
   /* Custom animations */
