@@ -22,10 +22,10 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                     </>
                 ) : (
                     /* Desktop layout: Sidebar on left and main content on right */
-                    <div className="flex flex-1 flex-row min-h-screen">
+                    (<div className="flex flex-1 flex-row min-h-screen">
                         <AppSidebar />
                         <main className="flex-1 overflow-auto">{children}</main>
-                    </div>
+                    </div>)
                 )}
             </div>
         </SidebarProvider>

@@ -1,38 +1,30 @@
 "use client";
 
-import SearchIcon from '@mui/icons-material/Search';
-import React, { FC, useState } from "react";
-import { ChevronLeft, ChevronRight, MoreHorizontalIcon } from "lucide-react";
-import Button from "@mui/material/Button";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import { useRouter } from "next/navigation";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
-import EditNoteIcon from '@mui/icons-material/EditNote';
+import SearchIcon from '@mui/icons-material/Search';
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import TextField from "@mui/material/TextField";
-import Stack from '@mui/material/Stack';
-import TableContainer from '@mui/material/TableContainer';
-import Table from '@mui/material/Table';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import TableBody from '@mui/material/TableBody';
-import InputAdornment from '@mui/material/InputAdornment';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import InputAdornment from '@mui/material/InputAdornment';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import Pagination from '@mui/material/Pagination';
+import Select from '@mui/material/Select';
+import Stack from '@mui/material/Stack';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
+import { MoreHorizontalIcon } from 'lucide-react';
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 interface TableHeader {
   key: string;      // Object property name (lowercase)
@@ -72,7 +64,7 @@ export const DataTable = <T extends Record<string, any>,>({
   const router = useRouter();
 
   // Determine which field to search in (default to first header if not specified)
-  const fieldToSearch = searchField || headers[0] as keyof T;
+  const fieldToSearch = searchField || headers[0].key as keyof T;
 
   const filteredData = data.filter((item) => {
     // Handle possible undefined or null values
@@ -179,7 +171,7 @@ export const DataTable = <T extends Record<string, any>,>({
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((item, index) => (
+              {currentData.map((item, index) => (
                 <TableRow
                   key={item.id || index}
                   sx={{ '&:hover': { bgcolor: 'action.hover' } }}
@@ -193,6 +185,7 @@ export const DataTable = <T extends Record<string, any>,>({
                     <IconButton
                       onClick={handleMenuOpen}
                       title="Additional Row Actions"
+                      sx={{ color: "grey.400" }}
                     >
                       <MoreHorizontalIcon />
                     </IconButton>
@@ -237,249 +230,46 @@ export const DataTable = <T extends Record<string, any>,>({
             </TableBody>
           </Table>
         </TableContainer>
-      </CardContent>
 
-      {/* <CardContent>
-        {isError ? (<ErrorState />) : isLoading ? (
-          <LoadingRows />
-        ) : currentData.length > 0 ? (
-          <DataTableContent
-            data={currentData}
-            headers={headers}
-            handleRowClick={handleRowClick}
-            handleDeleteClick={handleDeleteClick}
-            handleEditClick={handleEditClick}
+        <Stack
+          direction="row"
+          sx={{
+            pt: 2,
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalItems)} of {totalItems}
+          </Typography>
+
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography variant="body2" color="text.secondary">
+                Rows per page:
+              </Typography>
+              <Select
+                value={pageSize}
+                onChange={(e) => handlePageSizeChange(e.target.value)}
+                size="small"
+                sx={{ minWidth: 70 }}
+              >
+                <MenuItem value="5">5</MenuItem>
+                <MenuItem value="10">10</MenuItem>
+                <MenuItem value="15">15</MenuItem>
+                <MenuItem value="20">20</MenuItem>
+                <MenuItem value="50">50</MenuItem>
+              </Select>
+            </Stack>
+          </Stack>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={(event, page) => handlePageChange(page)}
+            shape="rounded"
           />
-        ) : (
-          <EmptyState />
-        )}
-      </CardContent> */}
-
-      {/* {filteredData.length > 0 && (
-        <TableFooter
-          indexOfFirstItem={indexOfFirstItem}
-          indexOfLastItem={indexOfLastItem}
-          totalItems={totalItems}
-          pageSize={pageSize}
-          handlePageSizeChange={handlePageSizeChange}
-          handlePageChange={handlePageChange}
-          currentPage={currentPage}
-          totalPages={totalPages}
-        />
-      )} */}
+        </Stack>
+      </CardContent>
     </Card>
   );
 };
-
-// Component for displaying table content
-const DataTableContent = <T extends Record<string, any>,>({
-  data,
-  headers,
-  handleRowClick,
-  handleDeleteClick,
-  handleEditClick
-}: {
-  data: T[];
-  headers: string[];
-  handleRowClick: (item: T) => void;
-  handleDeleteClick: (item: T) => void;
-  handleEditClick: (item: T) => void;
-}) => {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow className="hover:bg-transparent cursor-default">
-          {headers.map((header, index) => (
-            <TableHead
-              key={index}
-              className={index > 0 ? "md:table-cell" : ""}
-            >
-              {header}
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.map((item, rowIndex) => (
-          <TableRow
-            key={`row-${rowIndex}-${String(item.id || rowIndex)}`}
-            className="cursor-pointer"
-            onClick={() => handleRowClick(item)}
-          >
-            {headers.map((header, cellIndex) => {
-              // Direct access to the property using the header as the key
-              //Need to transform header to camel case if has spaces in it
-              const headerToCamelCase = toCamelCase(header)
-              const value = item[headerToCamelCase];
-
-              // Check if the current header might be a URL field
-              const isUrlField = header.toLowerCase().includes('url') ||
-                header.toLowerCase().includes('website') ||
-                header.toLowerCase() === 'link';
-
-              return (
-                <TableCell
-                  key={`cell-${rowIndex}-${cellIndex}`}
-                  className={cellIndex > 0 ? "font-medium" : "md:table-cell"}
-                >
-                  {isUrlField && value ? (
-                    <a
-                      href={typeof value === 'string' ? (value.startsWith("http") ? value : `https://${value}`) : '#'}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent row click when clicking the link
-                      }}
-                    >
-                      {value}
-                    </a>
-                  ) : (
-                    value || "-"
-                  )}
-                </TableCell>
-              );
-            })}
-            <TableCell className="w-10 margin-right-5">
-              <div className="flex justify-end space-x-2">
-                {/* Edit Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditClick(item);
-                  }}
-                  className="cursor-pointer p-1 rounded-full text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-primary/50 transition-colors"
-                  title="Edit Row"
-                >
-                  <EditNoteIcon className="h-5 w-5" />
-                </button>
-
-                {/* Delete Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteClick(item);
-                  }}
-                  className="cursor-pointer p-1 rounded-full text-red-600 hover:bg-red-200 dark:text-red-400 dark:hover:bg-destructive/60 transition-colors"
-                  title="Delete Row"
-                >
-                  <DeleteForeverIcon className="h-5 w-5" />
-                </button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-};
-
-// Loading state component
-const LoadingRows: FC = () => {
-  return (
-    <div className="space-y-3">
-      {[...Array(3)].map((_, i) => (
-        <div key={i} className="flex items-center w-full mb-4">
-          <Skeleton className="h-12 w-full bg-gray-300 dark:bg-gray-300" />
-        </div>
-      ))}
-    </div>
-  );
-};
-
-// Empty state component
-const EmptyState: FC = () => {
-  return (
-    <div className="text-center py-10">
-      <p className="text-muted-foreground mb-4">No data found</p>
-    </div>
-  );
-};
-
-const ErrorState: FC = () => {
-  return (
-    <div className="text-center py-10">
-      <p className="text-muted-foreground mb-4">Error while retrieving data...</p>
-    </div>
-  );
-}
-
-// Table footer with pagination
-const TableFooter: FC<{
-  indexOfFirstItem: number;
-  indexOfLastItem: number;
-  totalItems: number;
-  pageSize: string;
-  handlePageSizeChange: (value: string) => void;
-  handlePageChange: (page: number) => void;
-  currentPage: number;
-  totalPages: number;
-}> = ({
-  indexOfFirstItem,
-  indexOfLastItem,
-  totalItems,
-  pageSize,
-  handlePageSizeChange,
-  handlePageChange,
-  currentPage,
-  totalPages,
-}) => {
-    return (
-      <CardFooter className="flex items-center justify-between pt-0">
-        <div className="text-sm text-muted-foreground">
-          {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalItems)} of {totalItems}
-        </div>
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <Select
-              value={pageSize}
-              onValueChange={handlePageSizeChange}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder="10" />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {["10", "15", "20", "50"].map((size) => (
-                  <SelectItem key={size} value={size}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="h-8 w-8 p-0"
-            >
-              <span className="sr-only">Go to previous page</span>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="text-sm font-medium">
-              {currentPage} of {totalPages}
-            </div>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="h-8 w-8 p-0"
-            >
-              <span className="sr-only">Go to next page</span>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </CardFooter>
-    );
-  };
-
-const toCamelCase = (str: string): string => {
-  const firstCharLower = str.charAt(0).toLowerCase();
-  const restOfString = str.slice(1);
-
-  return (firstCharLower + restOfString).replace(' ', '')
-}

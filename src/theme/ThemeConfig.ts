@@ -70,6 +70,9 @@ export const theme = createTheme({
         grey: {
           700: '#1a1a1a',
           900: '#171717'
+        },
+        text: {
+          secondary: '#858585'
         }
       }
     }
