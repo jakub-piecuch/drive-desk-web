@@ -14,6 +14,7 @@ import Divider from "@mui/material/Divider";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
+import { useIsMobile } from "@/hooks/useMobile";
 import {
   Calendar,
   Car,
@@ -33,21 +34,17 @@ import { useEffect, useState } from "react";
 
 const SIDEBAR_STATE_KEY = "sidebar-collapsed-state";
 const DRAWER_WIDTH = 256;
-const DRAWER_COLLAPSED_WIDTH = 64;
-
-export interface AppSidebarProps {
-  isMobileView?: boolean;
-}
+const DRAWER_COLLAPSED_WIDTH = 77;
 
 interface NavItemProps {
   to: string;
   icon: React.ComponentType<{ className?: string; size?: number }>;
   label: string;
   collapsed: boolean;
-  isMobileView: boolean;
+  isMobile: boolean;
 }
 
-const NavItem = ({ to, icon: Icon, label, collapsed, isMobileView }: NavItemProps) => {
+const NavItem = ({ to, icon: Icon, label, collapsed, isMobile }: NavItemProps) => {
   const pathname = usePathname();
   const isActive = pathname === to;
 
@@ -61,7 +58,7 @@ const NavItem = ({ to, icon: Icon, label, collapsed, isMobileView }: NavItemProp
           borderRadius: 1,
           mx: 1,
           my: 0.5,
-          justifyContent: collapsed && !isMobileView ? 'center' : 'flex-start',
+          justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
           '&.Mui-selected': {
             bgcolor: 'primary.main',
             color: 'white',
@@ -73,18 +70,22 @@ const NavItem = ({ to, icon: Icon, label, collapsed, isMobileView }: NavItemProp
       >
         <ListItemIcon
           sx={{
-            minWidth: collapsed && !isMobileView ? 0 : 40,
+            minWidth: collapsed && !isMobile ? 0 : 40,
             color: isActive ? 'white' : 'grey.400',
           }}
         >
           <Icon size={20} />
         </ListItemIcon>
-        {(!collapsed || isMobileView) && (
+        {(!collapsed || isMobile) && (
           <ListItemText
             primary={label}
-            primaryTypographyProps={{
-              fontSize: '0.875rem',
-              fontWeight: isActive ? 600 : 400,
+            slotProps={{
+              primary: {
+                sx: {
+                  fontSize: '0.875rem',
+                  fontWeight: isActive ? 600 : 400,
+                }
+              }
             }}
           />
         )}
@@ -93,7 +94,8 @@ const NavItem = ({ to, icon: Icon, label, collapsed, isMobileView }: NavItemProp
   );
 };
 
-export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
+export function AppSidebar() {
+  const isMobile = useIsMobile();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -104,10 +106,10 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
   });
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && !isMobileView) {
+    if (typeof window !== 'undefined' && !isMobile) {
       localStorage.setItem(SIDEBAR_STATE_KEY, JSON.stringify(collapsed));
     }
-  }, [collapsed, isMobileView]);
+  }, [collapsed, isMobile]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -132,16 +134,22 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
           px: 1,
         }}
       >
-        {(!collapsed || isMobileView) && (
+        {(!collapsed || isMobile) && (
           <Typography variant="h6" fontWeight={600}>
             DriveDesk
           </Typography>
         )}
-        {!isMobileView && (
+        {!isMobile && (
           <IconButton
             size="small"
             onClick={() => setCollapsed(!collapsed)}
-            sx={{ ml: 'auto' }}
+            sx={{
+              ml: 'auto',
+              borderRadius: 1,
+              '&:hover': {
+                bgcolor: 'action.hover',
+              }
+            }}
           >
             {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </IconButton>
@@ -152,7 +160,7 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
       <Box sx={{ flexGrow: 1, overflow: 'auto', mt: 2 }}>
         {/* Main Section */}
         <Box sx={{ mb: 3 }}>
-          {(!collapsed || isMobileView) && (
+          {(!collapsed || isMobile) && (
             <Typography
               variant="caption"
               sx={{
@@ -173,42 +181,42 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
               icon={HomeIcon}
               label="Dashboard"
               collapsed={collapsed}
-              isMobileView={isMobileView}
+              isMobile={isMobile}
             />
             <NavItem
               to="/home/schedules"
               icon={Calendar}
               label="Schedules"
               collapsed={collapsed}
-              isMobileView={isMobileView}
+              isMobile={isMobile}
             />
             <NavItem
               to="/home/cars"
               icon={Car}
               label="Cars"
               collapsed={collapsed}
-              isMobileView={isMobileView}
+              isMobile={isMobile}
             />
             <NavItem
               to="/home/instructors"
               icon={HardHat}
               label="Instructors"
               collapsed={collapsed}
-              isMobileView={isMobileView}
+              isMobile={isMobile}
             />
             <NavItem
               to="/home/trainees"
               icon={Train}
               label="Trainees"
               collapsed={collapsed}
-              isMobileView={isMobileView}
+              isMobile={isMobile}
             />
           </List>
         </Box>
 
         {/* Settings Section */}
         <Box>
-          {(!collapsed || isMobileView) && (
+          {(!collapsed || isMobile) && (
             <Typography
               variant="caption"
               sx={{
@@ -229,7 +237,7 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
               icon={CircleUserRound}
               label="Settings"
               collapsed={collapsed}
-              isMobileView={isMobileView}
+              isMobile={isMobile}
             />
           </List>
         </Box>
@@ -238,24 +246,36 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
       {/* Sign Out Button */}
       <Box sx={{ mt: 'auto', pt: 2 }}>
         <Divider sx={{ mb: 2 }} />
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => signOut({ callbackUrl: '/' })}
-          startIcon={<LogOut size={16} />}
-          sx={{
-            justifyContent: collapsed && !isMobileView ? 'center' : 'flex-start',
-            px: collapsed && !isMobileView ? 1 : 2,
-          }}
-        >
-          {(!collapsed || isMobileView) && 'Sign Out'}
-        </Button>
+        {collapsed && !isMobile ? (
+          // Collapsed view - Icon only button
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={() => signOut({ callbackUrl: '/' })}
+            sx={{
+              minWidth: 'auto',
+              px: 1,
+            }}
+          >
+            <LogOut size={16} />
+          </Button>
+        ) : (
+          // Expanded view - Text with icon
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={() => signOut({ callbackUrl: '/' })}
+            startIcon={<LogOut size={16} />}
+          >
+            Sign Out
+          </Button>
+        )}
       </Box>
     </Box>
   );
 
   // Mobile view with AppBar and temporary Drawer
-  if (isMobileView) {
+  if (isMobile) {
     return (
       <>
         <AppBar
@@ -287,7 +307,7 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better mobile performance
+            keepMounted: true,
           }}
           sx={{
             '& .MuiDrawer-paper': {

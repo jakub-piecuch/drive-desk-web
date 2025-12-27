@@ -66,3 +66,48 @@
     transform: translateY(0);
   }
 }
+
+/* Add to src/app/globals.css */
+
+/* Force hardware acceleration for all animations */
+@layer base {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Optimize animations for 60fps */
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-in-out forwards;
+    will-change: opacity;
+    transform: translateZ(0); /* Force GPU */
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.4s ease-out forwards;
+    will-change: opacity, transform;
+    backface-visibility: hidden; /* Prevent flickering */
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0); 
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}

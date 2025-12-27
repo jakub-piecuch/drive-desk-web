@@ -12,6 +12,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
     <Box
       sx={{
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         minHeight: '100vh',
         width: '100%',
         bgcolor: 'background.default',
@@ -30,21 +31,11 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         }}
       />
 
-      {isMobile ? (
-        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <AppSidebar isMobileView={true} />
-          <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
-            {children}
-          </Box>
-        </Box>
-      ) : (
-        <>
-          <AppSidebar />
-          <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
-            {children}
-          </Box>
-        </>
-      )}
+      <AppSidebar />
+      
+      <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
+        {children}
+      </Box>
     </Box>
   );
 };
