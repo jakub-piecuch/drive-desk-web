@@ -2,7 +2,7 @@
 
 import SearchIcon from '@mui/icons-material/Search';
 import React, { FC, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, MoreHorizontalIcon } from "lucide-react";
 import Button from "@mui/material/Button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditIcon from '@mui/icons-material/Edit';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -27,6 +28,11 @@ import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 
 interface TableHeader {
   key: string;      // Object property name (lowercase)
@@ -85,6 +91,24 @@ export const DataTable = <T extends Record<string, any>,>({
   const indexOfFirstItem = indexOfLastItem - parseInt(pageSize);
   const currentData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+
+  const handleDelete = (item: any) => {
+    handleDeleteClick(item);
+    handleMenuClose();
+  };
+
   // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -131,11 +155,10 @@ export const DataTable = <T extends Record<string, any>,>({
           placeholder="Search cars..."
           startAdornment={
             <InputAdornment position="start">
-              <SearchIcon />
+              <SearchIcon sx={{ color: 'grey.500' }} />
             </InputAdornment>
           }
           sx={{
-            borderColor: 'grey.100',
             maxWidth: { xs: '100%', sm: 400 },
             backgroundColor: 'grey.700'
           }}
@@ -152,6 +175,7 @@ export const DataTable = <T extends Record<string, any>,>({
                     {header.label}
                   </TableCell>
                 ))}
+                <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>
@@ -165,6 +189,41 @@ export const DataTable = <T extends Record<string, any>,>({
                       {item[header.key]}
                     </TableCell>
                   ))}
+                  <TableCell align='right'>
+                    <IconButton
+                      onClick={handleMenuOpen}
+                      title="Additional Row Actions"
+                    >
+                      <MoreHorizontalIcon />
+                    </IconButton>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={open}
+                      onClose={handleMenuClose}
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                      }}
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                      }}
+                    >
+                      <MenuItem onClick={handleMenuClose}>
+                        <ListItemIcon>
+                          <EditIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Edit</ListItemText>
+                      </MenuItem>
+
+                      <MenuItem onClick={() => handleDelete(item)}>
+                        <ListItemIcon>
+                          <DeleteForeverIcon fontSize="small" color="error" />
+                        </ListItemIcon>
+                        <ListItemText>Delete</ListItemText>
+                      </MenuItem>
+                    </Menu>
+                  </TableCell>
                 </TableRow>
               ))}
 
@@ -177,7 +236,6 @@ export const DataTable = <T extends Record<string, any>,>({
               )}
             </TableBody>
           </Table>
-
         </TableContainer>
       </CardContent>
 
