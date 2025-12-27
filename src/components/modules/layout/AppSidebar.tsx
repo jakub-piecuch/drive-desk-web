@@ -1,13 +1,24 @@
+// src/components/modules/layout/AppSidebar.tsx
 "use client";
 
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useIsMobile } from "@/hooks/useMobile";
-import { cn } from "@/lib/utils";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
 import {
   Calendar,
   Car,
-  ChevronLeft, ChevronRight,
+  ChevronLeft,
+  ChevronRight,
   CircleUserRound,
   HardHat,
   HomeIcon,
@@ -20,21 +31,71 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// Key for localStorage
 const SIDEBAR_STATE_KEY = "sidebar-collapsed-state";
+const DRAWER_WIDTH = 256;
+const DRAWER_COLLAPSED_WIDTH = 64;
 
 export interface AppSidebarProps {
   isMobileView?: boolean;
 }
 
-export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
-  const isMobile = useIsMobile();
-  const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+interface NavItemProps {
+  to: string;
+  icon: React.ComponentType<{ className?: string; size?: number }>;
+  label: string;
+  collapsed: boolean;
+  isMobileView: boolean;
+}
 
-  // Initialize collapsed state from localStorage if available
+const NavItem = ({ to, icon: Icon, label, collapsed, isMobileView }: NavItemProps) => {
+  const pathname = usePathname();
+  const isActive = pathname === to;
+
+  return (
+    <ListItem disablePadding>
+      <ListItemButton
+        component={Link}
+        href={to}
+        selected={isActive}
+        sx={{
+          borderRadius: 1,
+          mx: 1,
+          my: 0.5,
+          justifyContent: collapsed && !isMobileView ? 'center' : 'flex-start',
+          '&.Mui-selected': {
+            bgcolor: 'primary.main',
+            color: 'white',
+            '&:hover': {
+              bgcolor: 'primary.dark',
+            },
+          },
+        }}
+      >
+        <ListItemIcon
+          sx={{
+            minWidth: collapsed && !isMobileView ? 0 : 40,
+            color: isActive ? 'white' : 'grey.400',
+          }}
+        >
+          <Icon size={20} />
+        </ListItemIcon>
+        {(!collapsed || isMobileView) && (
+          <ListItemText
+            primary={label}
+            primaryTypographyProps={{
+              fontSize: '0.875rem',
+              fontWeight: isActive ? 600 : 400,
+            }}
+          />
+        )}
+      </ListItemButton>
+    </ListItem>
+  );
+};
+
+export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => {
-    // Only access localStorage on the client side
     if (typeof window !== 'undefined') {
       const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
       return savedState ? JSON.parse(savedState) : false;
@@ -42,141 +103,223 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
     return false;
   });
 
-  // Save collapsed state to localStorage whenever it changes
   useEffect(() => {
     if (typeof window !== 'undefined' && !isMobileView) {
       localStorage.setItem(SIDEBAR_STATE_KEY, JSON.stringify(collapsed));
     }
   }, [collapsed, isMobileView]);
 
-  // Reset mobile sidebar state when screen size changes
-  useEffect(() => {
-    if (!isMobileView) {
-      setSidebarOpen(false);
-    }
-  }, [isMobileView]);
-
-  // Replace NavLink with a Next.js compatible version
-  const NavItem = ({
-    to,
-    icon: Icon,
-    label
-  }: {
-    to: string;
-    icon: React.ComponentType<{
-      className?: string;
-    }>;
-    label: string;
-  }) => {
-    const isActive = pathname === to;
-
-    return (
-      <Link
-        href={to}
-        className={cn(
-          "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-200 transition-all hover:text-white dark:text-gray-200 dark:hover:text-white",
-          isActive ? "bg-primary text-white" : "hover:bg-secondary dark:hover:bg-secondary",
-          collapsed && !isMobileView && "justify-center px-2"
-        )}
-      >
-        <Icon className="h-5 w-5 shrink-0" />
-        {(!collapsed || isMobileView) && <span>{label}</span>}
-      </Link>
-    );
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
 
-  const sidebarContent = (
-    <nav className={cn(
-      "flex flex-col h-full p-4 transition-all duration-300 ease-in-out",
-      !isMobileView && (collapsed ? "w-[60px]" : "w-64")
-    )}>
-      {/* This wrapper contains all content except the sign out button */}
-      <div className="flex flex-col flex-grow min-h-0">
-        <div className="flex items-center justify-between mb-4">
-          {(!collapsed || isMobileView) && <span className="text-lg font-semibold">DriveDesk</span>}
-          {!isMobileView && (
-            <Button
-              className="h-8 w-8 p-0"
-              onClick={() => setCollapsed(!collapsed)}
+  const drawerContent = (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        p: 2,
+      }}
+    >
+      {/* Header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mb: 2,
+          px: 1,
+        }}
+      >
+        {(!collapsed || isMobileView) && (
+          <Typography variant="h6" fontWeight={600}>
+            DriveDesk
+          </Typography>
+        )}
+        {!isMobileView && (
+          <IconButton
+            size="small"
+            onClick={() => setCollapsed(!collapsed)}
+            sx={{ ml: 'auto' }}
+          >
+            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </IconButton>
+        )}
+      </Box>
+
+      {/* Navigation */}
+      <Box sx={{ flexGrow: 1, overflow: 'auto', mt: 2 }}>
+        {/* Main Section */}
+        <Box sx={{ mb: 3 }}>
+          {(!collapsed || isMobileView) && (
+            <Typography
+              variant="caption"
+              sx={{
+                px: 2,
+                py: 1,
+                color: 'grey.400',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
             >
-              {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-            </Button>
+              Main
+            </Typography>
           )}
-        </div>
+          <List dense>
+            <NavItem
+              to="/home/dashboard"
+              icon={HomeIcon}
+              label="Dashboard"
+              collapsed={collapsed}
+              isMobileView={isMobileView}
+            />
+            <NavItem
+              to="/home/schedules"
+              icon={Calendar}
+              label="Schedules"
+              collapsed={collapsed}
+              isMobileView={isMobileView}
+            />
+            <NavItem
+              to="/home/cars"
+              icon={Car}
+              label="Cars"
+              collapsed={collapsed}
+              isMobileView={isMobileView}
+            />
+            <NavItem
+              to="/home/instructors"
+              icon={HardHat}
+              label="Instructors"
+              collapsed={collapsed}
+              isMobileView={isMobileView}
+            />
+            <NavItem
+              to="/home/trainees"
+              icon={Train}
+              label="Trainees"
+              collapsed={collapsed}
+              isMobileView={isMobileView}
+            />
+          </List>
+        </Box>
 
-        {/* Company Selector */}
-        {(!collapsed || isMobileView)}
+        {/* Settings Section */}
+        <Box>
+          {(!collapsed || isMobileView) && (
+            <Typography
+              variant="caption"
+              sx={{
+                px: 2,
+                py: 1,
+                color: 'grey.400',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
+              Settings
+            </Typography>
+          )}
+          <List dense>
+            <NavItem
+              to="/settings"
+              icon={CircleUserRound}
+              label="Settings"
+              collapsed={collapsed}
+              isMobileView={isMobileView}
+            />
+          </List>
+        </Box>
+      </Box>
 
-        <div className="flex-grow overflow-y-auto mt-4">
-          <div className="mb-4">
-            <p className={cn("text-xs font-semibold text-gray-200 mb-2 uppercase", collapsed && !isMobileView && "text-center")}>
-              {collapsed && !isMobileView ? "" : "Main"}
-            </p>
-            <div className="space-y-1">
-              <NavItem to="/home/dashboard" icon={HomeIcon} label="Dashboard" />
-              <NavItem to="/home/schedules" icon={Calendar} label="Schedules" />
-              <NavItem to="/home/cars" icon={Car} label="Cars" />
-              <NavItem to="/home/instructors" icon={HardHat} label="Instructors" />
-              <NavItem to="/home/trainees" icon={Train} label="Trainees" />
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <p className={cn("text-xs font-semibold text-gray-200 mb-2 uppercase", collapsed && !isMobileView && "text-center")}>
-              {collapsed && !isMobileView ? "" : "Settings"}
-            </p>
-            <div className="space-y-1">
-              <NavItem to="/settings" icon={CircleUserRound} label="settings" />
-              {/* <NavItem to="/configuration" icon={Settings} label="Configuration" /> */}
-              {/* <NavItem to="/companies" icon={HousePlus} label="Companies" /> */}
-              {/* <NavItem to="/account" icon={UserCog} label="Account Settings" /> */}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Sign out button - always at the bottom */}
-      <div className="mt-auto pt-4">
+      {/* Sign Out Button */}
+      <Box sx={{ mt: 'auto', pt: 2 }}>
+        <Divider sx={{ mb: 2 }} />
         <Button
+          fullWidth
+          variant="outlined"
           onClick={() => signOut({ callbackUrl: '/' })}
-          className={cn("flex mb-2 items-center justify-center gap-2 w-full", collapsed && !isMobileView && "px-2")}
+          startIcon={<LogOut size={16} />}
+          sx={{
+            justifyContent: collapsed && !isMobileView ? 'center' : 'flex-start',
+            px: collapsed && !isMobileView ? 1 : 2,
+          }}
         >
-          <LogOut className="h-4 w-4" />
-          {(!collapsed || isMobileView) && <span>Sign out</span>}
+          {(!collapsed || isMobileView) && 'Sign Out'}
         </Button>
-      </div>
-    </nav>
+      </Box>
+    </Box>
   );
 
-  // For mobile devices, render a header bar and drawer
+  // Mobile view with AppBar and temporary Drawer
   if (isMobileView) {
     return (
       <>
-        {/* Mobile header bar */}
-        <div className="w-full border-b bg-background shadow-sm py-2 px-4 flex items-center justify-between sticky top-0 z-10">
-          <span className="text-lg font-semibold">DriveDesk</span>
-          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetTrigger asChild>
-              <Button className="shrink-0">
-                <Menu className="h-4 w-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64">
-              {sidebarContent}
-            </SheetContent>
-          </Sheet>
-        </div>
+        <AppBar
+          position="sticky"
+          elevation={1}
+          sx={{
+            bgcolor: 'background.paper',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Toolbar>
+            <Typography variant="h6" fontWeight={600} sx={{ flexGrow: 1 }}>
+              DriveDesk
+            </Typography>
+            <IconButton
+              color="inherit"
+              edge="end"
+              onClick={handleDrawerToggle}
+            >
+              <Menu />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+
+        <Drawer
+          variant="temporary"
+          anchor="left"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true, // Better mobile performance
+          }}
+          sx={{
+            '& .MuiDrawer-paper': {
+              width: DRAWER_WIDTH,
+              boxSizing: 'border-box',
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
       </>
     );
   }
 
-  // For desktop, render the regular sidebar
+  // Desktop view with permanent Drawer
   return (
-    <div className={cn(
-      "border-r bg-background transition-all duration-300 ease-in-out",
-      collapsed ? "w-[60px]" : "w-64"
-    )}>
-      {sidebarContent}
-    </div>
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: collapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH,
+        flexShrink: 0,
+        transition: 'width 0.3s ease-in-out',
+        '& .MuiDrawer-paper': {
+          width: collapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH,
+          boxSizing: 'border-box',
+          transition: 'width 0.3s ease-in-out',
+          borderRight: '1px solid',
+          borderColor: 'divider',
+        },
+      }}
+    >
+      {drawerContent}
+    </Drawer>
   );
 }

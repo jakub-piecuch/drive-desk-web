@@ -1,33 +1,50 @@
+// src/components/modules/layout/Layout.tsx
 "use client";
 
-import { SidebarProvider } from "@/components/ui/sidebar";
+import Box from "@mui/material/Box";
 import { AppSidebar } from "@/components/modules/layout/AppSidebar";
 import { useIsMobile } from "@/hooks/useMobile";
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
-    const isMobile = useIsMobile();
-    
-    return (
-        <SidebarProvider>
-            <div className="min-h-screen flex flex-col w-full bg-background relative">
-                {/* Add a subtle dot pattern */}
-                <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
-                
-                {/* Conditionally render mobile or desktop layout */}
-                {isMobile ? (
-                    <>
-                        {/* Mobile layout: Top header with menu and main content below */}
-                        <AppSidebar isMobileView={true} />
-                        <main className="flex-1 overflow-auto">{children}</main>
-                    </>
-                ) : (
-                    /* Desktop layout: Sidebar on left and main content on right */
-                    (<div className="flex flex-1 flex-row min-h-screen">
-                        <AppSidebar />
-                        <main className="flex-1 overflow-auto">{children}</main>
-                    </div>)
-                )}
-            </div>
-        </SidebarProvider>
-    );
+  const isMobile = useIsMobile();
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        minHeight: '100vh',
+        width: '100%',
+        bgcolor: 'background.default',
+        position: 'relative',
+      }}
+    >
+      {/* Optional: Subtle background pattern */}
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.05,
+          pointerEvents: 'none',
+          backgroundImage: `radial-gradient(circle, #666 1px, transparent 1px)`,
+          backgroundSize: '20px 20px',
+        }}
+      />
+
+      {isMobile ? (
+        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <AppSidebar isMobileView={true} />
+          <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
+            {children}
+          </Box>
+        </Box>
+      ) : (
+        <>
+          <AppSidebar />
+          <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
+            {children}
+          </Box>
+        </>
+      )}
+    </Box>
+  );
 };
