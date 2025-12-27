@@ -21,8 +21,8 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
-import SearchIcon from '@mui/icons-material/Search';
-import { MoreHorizontalIcon } from 'lucide-react';
+import SearchIcon from '@mui/icons-material/Search'
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';;
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -206,7 +206,7 @@ export const DataTable = <T extends Record<string, any>,>({
                           title="Additional Row Actions"
                           sx={{ color: "grey.400" }}
                         >
-                          <MoreHorizontalIcon />
+                          <MoreHorizIcon />
                         </IconButton>
                       </TableCell>
                     </TableRow>

@@ -1,11 +1,9 @@
 'use client';
 
-import { DataTable } from "@/components/modules/elements/DataTable";
-import { Section } from "@/components/layout/Section";
-import { PageHeader } from "@/components/modules/elements/PageHeader";
+import { PageHeader } from "@/components/elements/PageHeader";
+import AddIcon from '@mui/icons-material/Add';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import Button from "@mui/material/Button";
-import { Layout } from "@/components/modules/layout/Layout";
-import { Download, Plus } from "lucide-react";
 import { useInstructorsTableData } from "./instructor.hooks";
 
 export default function Instructors() {
@@ -25,33 +23,18 @@ export default function Instructors() {
               <Button
                 size="sm"
               >
-                <Download className="mr-2 h-4 w-4" />
+                <FileDownloadIcon className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button
                 size="sm"
               >
-                <Plus className="mr-2 h-4 w-4" />
+                <AddIcon className="mr-2 h-4 w-4" />
                 Add Instructor
               </Button>
             </>
           }
         />
-
-        <Section className="py-6 animate-fade-in" containerSize="full">
-          <div className="mt-6 animate-slide-down">
-            <DataTable
-              headers={instructors.headers}
-              data={instructors.data}
-              description="instructors"
-              isLoading={instructors.isLoading}
-              isError={instructors.isError}
-              idField="id"
-              searchField="email"
-              onRowClick={handleRowClick}
-            />
-          </div>
-        </Section>
       </div>
     </>
   )

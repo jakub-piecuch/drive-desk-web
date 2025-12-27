@@ -1,21 +1,18 @@
+// src/app/layout.tsx
 "use client";
 
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Inter } from 'next/font/google';
 import { useState } from "react";
 import './globals.css';
-import { ThemeProvider } from "@mui/material/styles";
-import { theme } from "@/theme/ThemeConfig";
 import MuiThemeProvider from "@/theme/MuiThemeProvider";
-
-const inter = Inter({ subsets: ['latin'] });
+import EmotionRegistry from "@/theme/EmotionRegistry";
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -26,14 +23,16 @@ export default function RootLayout({
   }));
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <QueryClientProvider client={queryClient}>
-          <MuiThemeProvider>
-            {children}
-            <Toaster position="top-right" theme="light" />
-          </MuiThemeProvider>
-        </QueryClientProvider>
+    <html lang="en">
+      <body>
+        <EmotionRegistry>
+          <QueryClientProvider client={queryClient}>
+            <MuiThemeProvider>
+              {children}
+              <Toaster position="top-right" richColors />
+            </MuiThemeProvider>
+          </QueryClientProvider>
+        </EmotionRegistry>
       </body>
     </html>
   );

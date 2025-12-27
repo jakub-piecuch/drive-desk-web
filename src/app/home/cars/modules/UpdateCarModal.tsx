@@ -1,8 +1,8 @@
-import { EntityFormModal } from "@/components/modules/modals/EntityFormModal";
+import { EntityFormModal } from "@/components/modals/EntityFormModal";
 import { useEffect, useState } from 'react';
 import { toast } from "sonner";
 import { useUpdateCarById } from "../car.hooks";
-import { FormInputRow } from "@/components/modules/elements/FormInputRow";
+import { FormInputRow } from "@/components/elements/FormInputRow";
 import { Stack } from "@mui/material";
 
 interface UpdateCarModalProps {

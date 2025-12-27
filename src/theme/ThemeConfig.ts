@@ -7,14 +7,83 @@ export const theme = createTheme({
     borderRadius: 6
   },
   typography: {
-    fontFamily: ''
+    // Using Inter font (common with Tailwind/Next.js) with system font fallbacks
+    fontFamily: [
+      'Inter',
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),
+
+    // Fine-tune the typography scale to match Tailwind defaults
+    fontSize: 16, // Base font size (Tailwind default is 16px but MUI default is 14px)
+
+    h1: {
+      fontSize: '2.25rem', // text-4xl
+      fontWeight: 700,
+      lineHeight: 1.2,
+    },
+    h2: {
+      fontSize: '1.875rem', // text-3xl
+      fontWeight: 700,
+      lineHeight: 1.3,
+    },
+    h3: {
+      fontSize: '1.5rem', // text-2xl
+      fontWeight: 600,
+      lineHeight: 1.3,
+    },
+    h4: {
+      fontSize: '1.25rem', // text-xl
+      fontWeight: 600,
+      lineHeight: 1.4,
+    },
+    h5: {
+      fontSize: '1.125rem', // text-lg
+      fontWeight: 600,
+      lineHeight: 1.4,
+    },
+    h6: {
+      fontSize: '1rem', // text-base
+      fontWeight: 600,
+      lineHeight: 1.5,
+    },
+    body1: {
+      fontSize: '1rem', // text-base (16px)
+      lineHeight: 1.5,
+    },
+    body2: {
+      fontSize: '0.875rem', // text-sm (14px)
+      lineHeight: 1.5,
+    },
+    button: {
+      fontSize: '0.875rem', // text-sm
+      fontWeight: 500,
+      textTransform: 'none', // Remove uppercase transformation
+    },
+    caption: {
+      fontSize: '0.75rem', // text-xs
+      lineHeight: 1.5,
+    },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: `
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+      `,
+    },
     MuiTextField: {
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 6, // And this
+            borderRadius: 6,
           }
         }
       }
@@ -23,10 +92,16 @@ export const theme = createTheme({
       styleOverrides: {
         paper: {
           background: '#1a1a1a',
-
-          // backgroundColor: paperColor, // Your custom color
           border: '1px solid',
-          borderColor: '#282828'
+          borderColor: '#282828',
+        }
+      }
+    },
+    MuiBackdrop: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'rgba(0, 0, 0, 0.3)', // Adjust opacity here
+          backdropFilter: 'blur(35px)', // Optional blur effect
         }
       }
     },
@@ -41,20 +116,20 @@ export const theme = createTheme({
         }
       },
       defaultProps: {
-        elevation: 2, // This removes the default elevation shadow
+        elevation: 2,
       }
     },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#171717', // Default border color
+            borderColor: '#171717',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#5EB567', // Hover border color
+            borderColor: '#5EB567',
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#5EB567', // Focused border color
+            borderColor: '#5EB567',
           },
         }
       }
@@ -64,9 +139,9 @@ export const theme = createTheme({
         root: {
           borderBottom: '1px solid #282828'
         },
-        head: {  // Targets only header cells
-          color: '#858585', // Your primary green
-          fontWeight: 'bold', // Optional: make headers bold
+        head: {
+          color: '#858585',
+          fontWeight: 'bold',
         },
         body: {
           // fontWeight: 'bold',
@@ -78,6 +153,11 @@ export const theme = createTheme({
     },
     MuiButton: {
       styleOverrides: {
+        root: {
+          borderRadius: 6,
+          textTransform: 'none', // Keep button text as-is (not uppercase)
+          fontWeight: 500,
+        }
       }
     }
   },

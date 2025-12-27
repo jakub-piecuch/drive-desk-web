@@ -1,16 +1,17 @@
 'use client';
 
-import { DataTable } from "@/components/modules/elements/DataTable";
-import { PageHeader } from "@/components/modules/elements/PageHeader";
-import { Download, Plus } from "lucide-react";
+import { DataTable } from "@/components/elements/DataTable";
+import { PageHeader } from "@/components/elements/PageHeader";
 import { useState } from "react";
+import AddIcon from '@mui/icons-material/Add';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { useCarsTableData, useDeleteCarById } from "./car.hooks";
 import { Car } from "./car.types";
 import { CreateCarModal } from "./modules/CreateCarModal";
 import { UpdateCarModal } from "./modules/UpdateCarModal";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import { ConfirmDialog } from "@/components/modules/elements/ConfirmDialog";
+import { ConfirmDialog } from "@/components/elements/ConfirmDialog";
 
 export default function Cars() {
   const deleteCarMutation = useDeleteCarById();
@@ -73,14 +74,14 @@ export default function Cars() {
               <Button
                 variant="outlined"
               >
-                <Download className="mr-2 h-4 w-4" />
+                <FileDownloadIcon className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button
                 variant="contained"
                 onClick={handleCreateCarClick}
               >
-                <Plus className="mr-2 h-4 w-4" />
+                <AddIcon className="mr-2 h-4 w-4" />
                 Add Car
               </Button>
             </>

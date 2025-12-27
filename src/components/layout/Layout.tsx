@@ -2,17 +2,13 @@
 "use client";
 
 import Box from "@mui/material/Box";
-import { AppSidebar } from "@/components/modules/layout/AppSidebar";
-import { useIsMobile } from "@/hooks/useMobile";
+import { AppSidebar } from "@/components/layout/AppSidebar";
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
-  const isMobile = useIsMobile();
-
   return (
     <Box
       sx={{
         display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
         minHeight: '100vh',
         width: '100%',
         bgcolor: 'background.default',

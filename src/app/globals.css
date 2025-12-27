@@ -1,113 +1,16 @@
-@import "tailwindcss";
-
-@plugin "tailwindcss-animate";
-
-@layer utilities {
-
-  /* Custom animations */
-  .animate-fade-in {
-    animation: fade-in 0.3s ease-in-out forwards;
-  }
-
-  .animate-slide-up {
-    animation: slide-up 0.4s ease-out forwards;
-  }
-
-  .animate-pulse-once {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) 1;
-  }
-
-  /* Animation delays */
-  .animation-delay-100 {
-    animation-delay: 100ms;
-  }
-
-  .animation-delay-200 {
-    animation-delay: 200ms;
-  }
-
-  .animation-delay-300 {
-    animation-delay: 300ms;
-  }
-
-  .bg-grid-pattern {
-    background-size: 20px 20px;
-    background-image:
-      linear-gradient(to right, var(--primary-foreground\/5) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--primary-foreground\/5) 1px, transparent 1px);
-  }
-
-  .glass-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  }
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Add to src/app/globals.css */
-
-/* Force hardware acceleration for all animations */
-@layer base {
-  * {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-}
-
-/* Optimize animations for 60fps */
-@layer utilities {
-  .animate-fade-in {
-    animation: fade-in 0.3s ease-in-out forwards;
-    will-change: opacity;
-    transform: translateZ(0); /* Force GPU */
-  }
-
-  .animate-slide-up {
-    animation: slide-up 0.4s ease-out forwards;
-    will-change: opacity, transform;
-    backface-visibility: hidden; /* Prevent flickering */
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 10px, 0); 
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
+a {
+  color: inherit;
+  text-decoration: none;
 }

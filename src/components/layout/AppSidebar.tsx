@@ -1,7 +1,21 @@
-// src/components/modules/layout/AppSidebar.tsx
+// src/components/layout/AppSidebar.tsx
 "use client";
 
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import HomeIcon from '@mui/icons-material/Home';
+import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
+import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
+import TrainIcon from '@mui/icons-material/Train';
+import { useMediaQuery, useTheme } from '@mui/material'; // ✅ ADD THIS
+import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
@@ -9,24 +23,8 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import Button from "@mui/material/Button";
-import { useIsMobile } from "@/hooks/useMobile";
-import {
-  Calendar,
-  Car,
-  ChevronLeft,
-  ChevronRight,
-  CircleUserRound,
-  HardHat,
-  HomeIcon,
-  LogOut,
-  Menu,
-  Train
-} from "lucide-react";
+import Typography from "@mui/material/Typography";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -95,7 +93,10 @@ const NavItem = ({ to, icon: Icon, label, collapsed, isMobile }: NavItemProps) =
 };
 
 export function AppSidebar() {
-  const isMobile = useIsMobile();
+  // ✅ ADD THIS - MUI's way of detecting mobile
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -151,7 +152,7 @@ export function AppSidebar() {
               }
             }}
           >
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            {collapsed ? <ChevronRightIcon fontSize="small" /> : <ChevronLeftIcon fontSize="small" />}
           </IconButton>
         )}
       </Box>
@@ -185,28 +186,28 @@ export function AppSidebar() {
             />
             <NavItem
               to="/home/schedules"
-              icon={Calendar}
+              icon={CalendarMonthIcon}
               label="Schedules"
               collapsed={collapsed}
               isMobile={isMobile}
             />
             <NavItem
               to="/home/cars"
-              icon={Car}
+              icon={DirectionsCarIcon}
               label="Cars"
               collapsed={collapsed}
               isMobile={isMobile}
             />
             <NavItem
               to="/home/instructors"
-              icon={HardHat}
+              icon={PersonIcon}
               label="Instructors"
               collapsed={collapsed}
               isMobile={isMobile}
             />
             <NavItem
               to="/home/trainees"
-              icon={Train}
+              icon={TrainIcon}
               label="Trainees"
               collapsed={collapsed}
               isMobile={isMobile}
@@ -234,7 +235,7 @@ export function AppSidebar() {
           <List dense>
             <NavItem
               to="/settings"
-              icon={CircleUserRound}
+              icon={SettingsIcon}
               label="Settings"
               collapsed={collapsed}
               isMobile={isMobile}
@@ -247,7 +248,6 @@ export function AppSidebar() {
       <Box sx={{ mt: 'auto', pt: 2 }}>
         <Divider sx={{ mb: 2 }} />
         {collapsed && !isMobile ? (
-          // Collapsed view - Icon only button
           <Button
             fullWidth
             variant="outlined"
@@ -257,15 +257,14 @@ export function AppSidebar() {
               px: 1,
             }}
           >
-            <LogOut size={16} />
+            <LogoutIcon fontSize="small" />
           </Button>
         ) : (
-          // Expanded view - Text with icon
           <Button
             fullWidth
             variant="outlined"
             onClick={() => signOut({ callbackUrl: '/' })}
-            startIcon={<LogOut size={16} />}
+            startIcon={<LogoutIcon fontSize="small" />}
           >
             Sign Out
           </Button>
@@ -296,7 +295,7 @@ export function AppSidebar() {
               edge="end"
               onClick={handleDrawerToggle}
             >
-              <Menu />
+              <MenuIcon />
             </IconButton>
           </Toolbar>
         </AppBar>
