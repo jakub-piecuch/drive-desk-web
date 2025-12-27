@@ -1,11 +1,6 @@
-"use client";
-
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import EditIcon from '@mui/icons-material/Edit';
-import SearchIcon from '@mui/icons-material/Search';
 import Alert from '@mui/material/Alert';
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -24,13 +19,16 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditIcon from '@mui/icons-material/Edit';
+import SearchIcon from '@mui/icons-material/Search';
 import { MoreHorizontalIcon } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 interface TableHeader {
-  key: string;      // Object property name (lowercase)
-  label: string;    // Display name (capitalized)
+  key: string;
+  label: string;
 }
 
 interface Props<T extends Record<string, any>> {
@@ -39,12 +37,12 @@ interface Props<T extends Record<string, any>> {
   description?: string;
   isLoading: boolean;
   isError: boolean;
-  idField?: keyof T; // Allow customizing which field to use as ID
-  searchField?: keyof T; // Allow customizing which field to search in
+  idField?: keyof T;
+  searchField?: keyof T;
   onRowClick?: (item: T) => void;
   onDeleteClick?: (item: T) => void;
   onEditClick?: (item: T) => void;
-  basePath?: string; // Base path for navigation when clicking a row
+  basePath?: string;
 }
 
 export const DataTable = <T extends Record<string, any>,>({
@@ -65,81 +63,73 @@ export const DataTable = <T extends Record<string, any>,>({
   const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
 
-  // Determine which field to search in (default to first header if not specified)
+  // Store both anchor element AND the selected item
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedItem, setSelectedItem] = useState<T | null>(null);
+  const open = Boolean(anchorEl);
+
   const fieldToSearch = searchField || headers[0].key as keyof T;
 
   const filteredData = data.filter((item) => {
-    // Handle possible undefined or null values
     const fieldValue = item[fieldToSearch];
     if (fieldValue === undefined || fieldValue === null) return false;
-
     return String(fieldValue).toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  // Calculate pagination
   const totalItems = filteredData.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / parseInt(pageSize)));
 
-  // Get current page of data
   const indexOfLastItem = currentPage * parseInt(pageSize);
   const indexOfFirstItem = indexOfLastItem - parseInt(pageSize);
   const currentData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  // Update to store the item when opening menu
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, item: T) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
+    setSelectedItem(item);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+    setSelectedItem(null);
   };
 
-
-  const handleDelete = (item: any) => {
-    handleDeleteClick(item);
+  const handleDelete = () => {
+    if (selectedItem && onDeleteClick) {
+      console.log('Deleting item', selectedItem);
+      onDeleteClick(selectedItem);
+    }
     handleMenuClose();
   };
 
-  // Handle page change
+  const handleEdit = () => {
+    if (selectedItem && onEditClick) {
+      console.log('Start Editing item', selectedItem);
+      onEditClick(selectedItem);
+    }
+    handleMenuClose();
+  };
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  // Handle page size change
   const handlePageSizeChange = (value: string) => {
     setPageSize(value);
-    setCurrentPage(1); // Reset to first page when changing page size
+    setCurrentPage(1);
   };
 
-  // Handle row click
   const handleRowClick = (item: T) => {
     if (onRowClick) {
       onRowClick(item);
     } else if (basePath) {
-      // Ensure the ID exists before navigating
       const id = item[idField];
       if (id !== undefined) {
         router.push(`${basePath}/${id}`);
       }
     }
   };
-
-  const handleDeleteClick = (item: T) => {
-    if (onDeleteClick) {
-      console.log('Deleting item', item)
-      onDeleteClick(item);
-    }
-  }
-
-  const handleEditClick = (item: T) => {
-    if (onEditClick) {
-      console.log('Start Editing item', item)
-      onEditClick(item);
-    }
-  }
 
   return (
     <Card variant="outlined">
@@ -179,7 +169,6 @@ export const DataTable = <T extends Record<string, any>,>({
               </TableHead>
               <TableBody>
                 {isLoading ? (
-                  // Loading state - show skeleton rows
                   [...Array(parseInt(pageSize))].map((_, index) => (
                     <TableRow key={`skeleton-${index}`}>
                       {headers.map((header) => (
@@ -193,7 +182,6 @@ export const DataTable = <T extends Record<string, any>,>({
                     </TableRow>
                   ))
                 ) : currentData.length === 0 ? (
-                  // Empty state
                   <TableRow>
                     <TableCell colSpan={headers.length + 1} align="center">
                       <Typography variant="body2" color="text.secondary" sx={{ py: 4 }}>
@@ -214,39 +202,12 @@ export const DataTable = <T extends Record<string, any>,>({
                       ))}
                       <TableCell align='right'>
                         <IconButton
-                          onClick={handleMenuOpen}
+                          onClick={(e) => handleMenuOpen(e, item)}
                           title="Additional Row Actions"
                           sx={{ color: "grey.400" }}
                         >
                           <MoreHorizontalIcon />
                         </IconButton>
-                        <Menu
-                          anchorEl={anchorEl}
-                          open={open}
-                          onClose={handleMenuClose}
-                          anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                          }}
-                          transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                          }}
-                        >
-                          <MenuItem onClick={() => handleEditClick(item)}>
-                            <ListItemIcon>
-                              <EditIcon fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText>Edit</ListItemText>
-                          </MenuItem>
-
-                          <MenuItem onClick={() => handleDelete(item)}>
-                            <ListItemIcon>
-                              <DeleteForeverIcon fontSize="small" color="error" />
-                            </ListItemIcon>
-                            <ListItemText>Delete</ListItemText>
-                          </MenuItem>
-                        </Menu>
                       </TableCell>
                     </TableRow>
                   ))
@@ -255,6 +216,35 @@ export const DataTable = <T extends Record<string, any>,>({
             </Table>
           </TableContainer>
         )}
+
+        {/* Move Menu outside the map - render only once */}
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <MenuItem onClick={handleEdit}>
+            <ListItemIcon>
+              <EditIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Edit</ListItemText>
+          </MenuItem>
+
+          <MenuItem onClick={handleDelete}>
+            <ListItemIcon>
+              <DeleteForeverIcon fontSize="small" color="error" />
+            </ListItemIcon>
+            <ListItemText>Delete</ListItemText>
+          </MenuItem>
+        </Menu>
 
         {!isLoading && !isError && filteredData.length > 0 && (
           <Stack
@@ -287,17 +277,19 @@ export const DataTable = <T extends Record<string, any>,>({
                   <MenuItem value="50">50</MenuItem>
                 </Select>
               </Stack>
+
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={(_, page) => handlePageChange(page)}
+                color="primary"
+                size="small"
+                shape="rounded"
+              />
             </Stack>
-            <Pagination
-              count={totalPages}
-              page={currentPage}
-              onChange={(event, page) => handlePageChange(page)}
-              shape="rounded"
-            />
           </Stack>
         )}
       </CardContent>
-
     </Card>
   );
 };

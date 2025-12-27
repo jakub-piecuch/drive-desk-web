@@ -10,6 +10,7 @@ import { Car } from "./car.types";
 import { CreateCarModal } from "./modules/CreateCarModal";
 import { UpdateCarModal } from "./modules/UpdateCarModal";
 import Button from "@mui/material/Button";
+import { ConfirmDialog } from "@/components/modules/elements/ConfirmDialog";
 
 export default function Cars() {
   const deleteCarMutation = useDeleteCarById();
@@ -17,6 +18,9 @@ export default function Cars() {
 
   const [isCreateCarModalOpen, setIsCreateCarModalOpen] = useState(false);
   const [isUpdateCarModalOpen, setIsUpdateCarModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [carToDelete, setCarToDelete] = useState<Car | null>(null);
+  
   const [currentItem, setCurrentItem] = useState<Car>({
     id: '',
     make: '',
@@ -35,9 +39,24 @@ export default function Cars() {
   }
 
   const handleDeleteClick = (item: Car) => {
-    if (confirm("Are you sure you want to delete this car?")) {
-      deleteCarMutation.mutate(item.id!);
+    setCarToDelete(item);
+    setIsDeleteDialogOpen(true);
+  }
+
+  const handleConfirmDelete = () => {
+    if (carToDelete?.id) {
+      deleteCarMutation.mutate(carToDelete.id, {
+        onSuccess: () => {
+          setIsDeleteDialogOpen(false);
+          setCarToDelete(null);
+        }
+      });
     }
+  }
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setCarToDelete(null);
   }
 
   const handleCreateCarClick = () => {
@@ -85,10 +104,12 @@ export default function Cars() {
           </div>
         </Section>
       </div>
+
       <CreateCarModal
         isOpen={isCreateCarModalOpen}
         onOpenChange={setIsCreateCarModalOpen}
       />
+
       <UpdateCarModal
         id={currentItem.id!}
         make={currentItem.make}
@@ -96,6 +117,18 @@ export default function Cars() {
         registrationNumber={currentItem.registrationNumber}
         isOpen={isUpdateCarModalOpen}
         onOpenChange={setIsUpdateCarModalOpen}
+      />
+
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Delete Car"
+        description={`Are you sure you want to delete ${carToDelete?.make} ${carToDelete?.model}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={deleteCarMutation.isPending}
+        severity="error"
       />
     </>
   )
