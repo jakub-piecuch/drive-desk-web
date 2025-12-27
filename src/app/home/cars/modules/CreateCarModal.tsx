@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { toast } from "sonner";
 import { useCreateCar } from "../car.hooks";
 import { FormInputRow } from "@/components/modules/elements/FormInputRow";
+import { Stack } from "@mui/material";
 
 interface CreateCarModalProps {
   isOpen: boolean;
@@ -13,40 +14,38 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
   const [registrationNumber, setRegistrationNumber] = useState('');
-  const { mutate: createCar, isPending, error} = useCreateCar();
+  const [errors, setErrors] = useState({ make: false, model: false, registrationNumber: false });
+
+  const { mutate: createCar, isPending } = useCreateCar();
 
   useEffect(() => {
     if (open) {
       setMake('');
       setModel('');
       setRegistrationNumber('');
+      setErrors({ make: false, model: false, registrationNumber: false });
     }
   }, [open]);
-
-
-  const handleOpenChange = (newOpenState: boolean) => {
-    onOpenChange(newOpenState);
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!make || !model || !registrationNumber) {
+    const newErrors = {
+      make: !make.trim(),
+      model: !model.trim(),
+      registrationNumber: !registrationNumber.trim()
+    };
+
+    setErrors(newErrors);
+
+    if (Object.values(newErrors).some(error => error)) {
       toast.error('Please fill in all required fields.');
       return;
     }
 
     createCar(
-      {
-        make: make,
-        model: model,
-        registrationNumber: registrationNumber
-      },
-      {
-        onSuccess: () => {
-          handleOpenChange(false);
-        }
-      }
+      { make: make.trim(), model: model.trim(), registrationNumber: registrationNumber.trim() },
+      { onSuccess: () => onOpenChange(false) }
     );
   };
 
@@ -59,32 +58,44 @@ export function CreateCarModal({ isOpen: open, onOpenChange }: CreateCarModalPro
       onSubmit={handleSubmit}
       isLoading={isPending}
     >
-      <div className="grid grid-cols-4 items-start gap-4">
+      <Stack spacing={2} sx={{ py: 2 }}>
         <FormInputRow
           id="make"
           labelText="Make"
-          placeholder="make..."
-          value= {make} 
-          onChange={(e) => setMake(e.target.value)}
-          required
+          placeholder="Enter make..."
+          value={make}
+          onChange={(e) => {
+            setMake(e.target.value);
+            if (errors.make) setErrors(prev => ({ ...prev, make: false }));
+          }}
+          error={errors.make}
+          helperText={errors.make ? 'Make is required' : ''}
         />
         <FormInputRow
           id="model"
           labelText="Model"
-          placeholder="model..."
+          placeholder="Enter model..."
           value={model}
-          onChange={(e) => setModel(e.target.value)}
-          required
+          onChange={(e) => {
+            setModel(e.target.value);
+            if (errors.model) setErrors(prev => ({ ...prev, model: false }));
+          }}
+          error={errors.model}
+          helperText={errors.model ? 'Model is required' : ''}
         />
         <FormInputRow
           id="registrationNumber"
           labelText="Registration Number"
-          placeholder="registration number..."
+          placeholder="Enter registration number..."
           value={registrationNumber}
-          onChange={(e) => setRegistrationNumber(e.target.value)}
-          required
+          onChange={(e) => {
+            setRegistrationNumber(e.target.value);
+            if (errors.registrationNumber) setErrors(prev => ({ ...prev, registrationNumber: false }));
+          }}
+          error={errors.registrationNumber}
+          helperText={errors.registrationNumber ? 'Registration number is required' : ''}
         />
-      </div>
+      </Stack>
     </EntityFormModal>
   );
 }

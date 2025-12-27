@@ -29,6 +29,7 @@ export default function Cars() {
   };
 
   const handleEditClick = (item: Car) => {
+    console.log("jestem tu!! edit")
     setCurrentItem(item)
     setIsUpdateCarModalOpen(true);
   }
@@ -78,7 +79,7 @@ export default function Cars() {
               idField="id"
               searchField="make"
               onRowClick={handleRowClick}
-              onDeleteClick={handleDeleteClick} // Use our custom row click handler
+              onDeleteClick={handleDeleteClick}
               onEditClick={handleEditClick}
             />
           </div>

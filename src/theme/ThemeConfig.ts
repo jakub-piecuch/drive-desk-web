@@ -19,6 +19,31 @@ export const theme = createTheme({
         }
       }
     },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          background: '#1a1a1a',
+
+          // backgroundColor: paperColor, // Your custom color
+          border: '1px solid',
+          borderColor: '#282828'
+        }
+      }
+    },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          marginTop: '2',
+          minWidth: '180',
+          boxShadow: 'none',
+          border: '1px solid',
+          borderColor: '#282828'
+        }
+      },
+      defaultProps: {
+        elevation: 2, // This removes the default elevation shadow
+      }
+    },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {

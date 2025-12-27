@@ -1,15 +1,15 @@
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { TextField } from '@mui/material';
 
 interface FormInputRowProps {
-  id: string,
-  labelText: string,
-  placeholder: string,
-  value: string,
-  onChange: (any: any) => void,
-  required?: boolean,
-  type?: string,
-  className?: string
+  id: string;
+  labelText: string;
+  placeholder: string;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+  className?: string;
+  error?: boolean;
+  helperText?: string;
 }
 
 export function FormInputRow({
@@ -18,28 +18,26 @@ export function FormInputRow({
   placeholder,
   value,
   onChange,
-  required = false,
   type = 'text',
   className,
+  error = false,
+  helperText,
   ...props
 }: FormInputRowProps) {
   return (
-    <>
-      <Label htmlFor={id} className="text-right pt-3">
-        {labelText+':'}
-      </Label>
-      <div className="col-span-3">
-        <Input
-          id={id}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          required={required}
-          type={type}
-          className={className}
-          {...props}
-        />
-      </div>
-    </>
+    <TextField
+      id={id}
+      label={labelText}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      type={type}
+      className={className}
+      fullWidth
+      variant="outlined"
+      error={error}
+      helperText={helperText}
+      {...props}
+    />
   );
 }
