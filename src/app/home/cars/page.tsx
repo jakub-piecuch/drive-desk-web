@@ -1,6 +1,5 @@
 'use client';
 
-import { Section } from "@/components/layout/Section";
 import { DataTable } from "@/components/modules/elements/DataTable";
 import { PageHeader } from "@/components/modules/elements/PageHeader";
 import { Download, Plus } from "lucide-react";
@@ -10,6 +9,7 @@ import { Car } from "./car.types";
 import { CreateCarModal } from "./modules/CreateCarModal";
 import { UpdateCarModal } from "./modules/UpdateCarModal";
 import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 import { ConfirmDialog } from "@/components/modules/elements/ConfirmDialog";
 
 export default function Cars() {
@@ -65,7 +65,7 @@ export default function Cars() {
 
   return (
     <>
-      <div className="p-6 sm:p-6 space-y-6">
+      <Box sx={{ p: { xs: 3, sm: 3 } }}>
         <PageHeader
           title="Cars"
           actions={
@@ -87,23 +87,21 @@ export default function Cars() {
           }
         />
 
-        <Section className="py-6 animate-fade-in" containerSize="full">
-          <div className="mt-6 animate-slide-down">
-            <DataTable
-              headers={cars.headers}
-              data={cars.data}
-              description="cars"
-              isLoading={cars.isLoading}
-              isError={cars.isError}
-              idField="id"
-              searchField="make"
-              onRowClick={handleRowClick}
-              onDeleteClick={handleDeleteClick}
-              onEditClick={handleEditClick}
-            />
-          </div>
-        </Section>
-      </div>
+        <Box sx={{ mt: 8 }}>
+          <DataTable
+            headers={cars.headers}
+            data={cars.data}
+            description="cars"
+            isLoading={cars.isLoading}
+            isError={cars.isError}
+            idField="id"
+            searchField="make"
+            onRowClick={handleRowClick}
+            onDeleteClick={handleDeleteClick}
+            onEditClick={handleEditClick}
+          />
+        </Box>
+      </Box>
 
       <CreateCarModal
         isOpen={isCreateCarModalOpen}
