@@ -21,7 +21,7 @@ export default function Cars() {
   const [isUpdateCarModalOpen, setIsUpdateCarModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [carToDelete, setCarToDelete] = useState<Car | null>(null);
-  
+
   const [currentItem, setCurrentItem] = useState<Car>({
     id: '',
     make: '',
@@ -66,17 +66,11 @@ export default function Cars() {
 
   return (
     <>
-      <Box sx={{ p: { xs: 3, sm: 3 } }}>
+      <Box sx={{ p: { xs: 3, sm: 3, md: 3 } }}>
         <PageHeader
           title="Cars"
           actions={
             <>
-              <Button
-                variant="outlined"
-              >
-                <FileDownloadIcon className="mr-2 h-4 w-4" />
-                Export
-              </Button>
               <Button
                 variant="contained"
                 onClick={handleCreateCarClick}
@@ -87,21 +81,21 @@ export default function Cars() {
             </>
           }
         />
+      </Box>
 
-        <Box sx={{ mt: 8 }}>
-          <DataTable
-            headers={cars.headers}
-            data={cars.data}
-            description="cars"
-            isLoading={cars.isLoading}
-            isError={cars.isError}
-            idField="id"
-            searchField="make"
-            onRowClick={handleRowClick}
-            onDeleteClick={handleDeleteClick}
-            onEditClick={handleEditClick}
-          />
-        </Box>
+      <Box sx={{ mt: -2, p: { xs: 0, sm: 0, md: 3 } }}>
+        <DataTable
+          headers={cars.headers}
+          data={cars.data}
+          description="cars"
+          isLoading={cars.isLoading}
+          isError={cars.isError}
+          idField="id"
+          searchField="make"
+          onRowClick={handleRowClick}
+          onDeleteClick={handleDeleteClick}
+          onEditClick={handleEditClick}
+        />
       </Box>
 
       <CreateCarModal

@@ -3,8 +3,12 @@
 
 import Box from "@mui/material/Box";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { useIsMobile } from "@/hooks/useBreakpoints";
+import Toolbar from "@mui/material/Toolbar";
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
+  const isMobile = useIsMobile();
+
   return (
     <Box
       sx={{
@@ -15,7 +19,6 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         position: 'relative',
       }}
     >
-      {/* Optional: Subtle background pattern */}
       <Box
         sx={{
           position: 'absolute',
@@ -30,6 +33,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       <AppSidebar />
       
       <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
+        {isMobile && <Toolbar />}
         {children}
       </Box>
     </Box>

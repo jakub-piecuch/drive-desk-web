@@ -18,9 +18,9 @@ export function PageHeader({
   return (
     <Box sx={{ mb: 3 }}>
       <Stack 
-        direction={{ xs: 'column', sm: 'row' }}
+        direction='row'
         spacing={2}
-        alignItems={{ xs: 'flex-start', sm: 'center' }}
+        alignItems='center'
         justifyContent="space-between"
       >
         <Box sx={{ flex: 1 }}>
@@ -49,8 +49,8 @@ export function PageHeader({
             direction="row" 
             spacing={1.5}
             sx={{ 
-              mt: { xs: 2, sm: 0 },
-              width: { xs: '100%', sm: 'auto' }
+              mt: 0,
+              width: 'auto'
             }}
           >
             {actions}

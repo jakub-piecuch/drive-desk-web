@@ -90,18 +90,13 @@ export const theme = createTheme({
     },
     MuiDialog: {
       styleOverrides: {
+        root: {
+          backdropFilter: 'blur(35px)'
+        },
         paper: {
           background: '#1a1a1a',
           border: '1px solid',
           borderColor: '#282828',
-        }
-      }
-    },
-    MuiBackdrop: {
-      styleOverrides: {
-        root: {
-          backgroundColor: 'rgba(0, 0, 0, 0.3)', // Adjust opacity here
-          backdropFilter: 'blur(35px)', // Optional blur effect
         }
       }
     },
@@ -116,7 +111,7 @@ export const theme = createTheme({
         }
       },
       defaultProps: {
-        elevation: 2,
+        elevation: 2
       }
     },
     MuiOutlinedInput: {

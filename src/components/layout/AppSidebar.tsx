@@ -1,6 +1,6 @@
-// src/components/layout/AppSidebar.tsx
 "use client";
 
+import { useIsMobile } from '@/hooks/useBreakpoints';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -11,7 +11,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TrainIcon from '@mui/icons-material/Train';
-import { useMediaQuery, useTheme } from '@mui/material'; // ✅ ADD THIS
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -93,9 +92,7 @@ const NavItem = ({ to, icon: Icon, label, collapsed, isMobile }: NavItemProps) =
 };
 
 export function AppSidebar() {
-  // ✅ ADD THIS - MUI's way of detecting mobile
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useIsMobile();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => {
@@ -278,12 +275,13 @@ export function AppSidebar() {
     return (
       <>
         <AppBar
-          position="sticky"
+          position="fixed"
           elevation={1}
           sx={{
             bgcolor: 'background.paper',
             borderBottom: '1px solid',
             borderColor: 'divider',
+            zIndex: (theme) => theme.zIndex.drawer + 1,  // ✅ ADDED: Ensures AppBar stays above drawer
           }}
         >
           <Toolbar>
