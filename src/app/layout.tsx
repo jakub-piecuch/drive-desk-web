@@ -1,12 +1,12 @@
 // src/app/layout.tsx
 "use client";
 
-import { Toaster } from "sonner";
+import EmotionRegistry from "@/theme/EmotionRegistry";
+import MuiThemeProvider from "@/theme/MuiThemeProvider";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from "react";
+import { Toaster } from "sonner";
 import './globals.css';
-import MuiThemeProvider from "@/theme/MuiThemeProvider";
-import EmotionRegistry from "@/theme/EmotionRegistry";
 
 export default function RootLayout({
   children,

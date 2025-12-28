@@ -39,9 +39,10 @@ interface NavItemProps {
   label: string;
   collapsed: boolean;
   isMobile: boolean;
+  onMobileClick?: () => void; // ✅ ADDED: Callback to close mobile drawer
 }
 
-const NavItem = ({ to, icon: Icon, label, collapsed, isMobile }: NavItemProps) => {
+const NavItem = ({ to, icon: Icon, label, collapsed, isMobile, onMobileClick }: NavItemProps) => {
   const pathname = usePathname();
   const isActive = pathname === to;
 
@@ -51,6 +52,12 @@ const NavItem = ({ to, icon: Icon, label, collapsed, isMobile }: NavItemProps) =
         component={Link}
         href={to}
         selected={isActive}
+        onClick={() => {
+          // ✅ FIXED: Close mobile drawer when navigating
+          if (isMobile && onMobileClick) {
+            onMobileClick();
+          }
+        }}
         sx={{
           borderRadius: 1,
           mx: 1,
@@ -111,6 +118,11 @@ export function AppSidebar() {
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  // ✅ FIXED: Actually close the mobile drawer
+  const handleMobileNavClick = () => {
+    setMobileOpen(false);
   };
 
   const drawerContent = (
@@ -180,6 +192,7 @@ export function AppSidebar() {
               label="Dashboard"
               collapsed={collapsed}
               isMobile={isMobile}
+              onMobileClick={handleMobileNavClick} // ✅ ADDED
             />
             <NavItem
               to="/home/schedules"
@@ -187,6 +200,7 @@ export function AppSidebar() {
               label="Schedules"
               collapsed={collapsed}
               isMobile={isMobile}
+              onMobileClick={handleMobileNavClick} // ✅ ADDED
             />
             <NavItem
               to="/home/cars"
@@ -194,6 +208,7 @@ export function AppSidebar() {
               label="Cars"
               collapsed={collapsed}
               isMobile={isMobile}
+              onMobileClick={handleMobileNavClick} // ✅ ADDED
             />
             <NavItem
               to="/home/instructors"
@@ -201,6 +216,7 @@ export function AppSidebar() {
               label="Instructors"
               collapsed={collapsed}
               isMobile={isMobile}
+              onMobileClick={handleMobileNavClick} // ✅ ADDED
             />
             <NavItem
               to="/home/trainees"
@@ -208,6 +224,7 @@ export function AppSidebar() {
               label="Trainees"
               collapsed={collapsed}
               isMobile={isMobile}
+              onMobileClick={handleMobileNavClick} // ✅ ADDED
             />
           </List>
         </Box>
@@ -236,6 +253,7 @@ export function AppSidebar() {
               label="Settings"
               collapsed={collapsed}
               isMobile={isMobile}
+              onMobileClick={handleMobileNavClick} // ✅ ADDED
             />
           </List>
         </Box>
@@ -281,7 +299,7 @@ export function AppSidebar() {
             bgcolor: 'background.paper',
             borderBottom: '1px solid',
             borderColor: 'divider',
-            zIndex: (theme) => theme.zIndex.drawer + 1,  // ✅ ADDED: Ensures AppBar stays above drawer
+            zIndex: (theme) => theme.zIndex.drawer + 1,
           }}
         >
           <Toolbar>
@@ -311,6 +329,8 @@ export function AppSidebar() {
               width: DRAWER_WIDTH,
               boxSizing: 'border-box',
             },
+            // ✅ ADDED: Blur backdrop when drawer is open
+            
           }}
         >
           {drawerContent}

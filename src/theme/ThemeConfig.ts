@@ -74,17 +74,31 @@ export const theme = createTheme({
     },
   },
   components: {
-    MuiCssBaseline: {
-      styleOverrides: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-      `,
-    },
     MuiTextField: {
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
             borderRadius: 6,
           }
+        }
+      }
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        root: {
+          '& .MuiBackdrop-root': {
+            backdropFilter: 'blur(4px)',
+          }
+        },
+        paper: {
+          background: paperColor
+        }
+      }
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          background: paperColor
         }
       }
     },

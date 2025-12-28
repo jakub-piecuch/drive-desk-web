@@ -1,4 +1,4 @@
-// src/components/common/PageHeader.tsx
+// src/components/elements/PageHeader.tsx
 import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -18,9 +18,9 @@ export function PageHeader({
   return (
     <Box sx={{ mb: 3 }}>
       <Stack 
-        direction='row'
+        direction={{ xs: 'column', sm: 'row' }}
         spacing={2}
-        alignItems='center'
+        alignItems={{ xs: 'flex-start', sm: 'center' }}
         justifyContent="space-between"
       >
         <Box sx={{ flex: 1 }}>
@@ -49,8 +49,8 @@ export function PageHeader({
             direction="row" 
             spacing={1.5}
             sx={{ 
-              mt: 0,
-              width: 'auto'
+              mt: { xs: 2, sm: 0 },
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             {actions}
