@@ -1,17 +1,16 @@
 'use client';
 
+import { ConfirmDialog } from "@/components/elements/ConfirmDialog";
 import { DataTable } from "@/components/elements/DataTable";
 import { PageHeader } from "@/components/elements/PageHeader";
-import { useState } from "react";
 import AddIcon from '@mui/icons-material/Add';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import { useState } from "react";
 import { useCarsTableData, useDeleteCarById } from "./car.hooks";
 import { Car } from "./car.types";
 import { CreateCarModal } from "./modules/CreateCarModal";
 import { UpdateCarModal } from "./modules/UpdateCarModal";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import { ConfirmDialog } from "@/components/elements/ConfirmDialog";
 
 export default function Cars() {
   const deleteCarMutation = useDeleteCarById();
