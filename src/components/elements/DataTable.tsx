@@ -59,7 +59,7 @@ export const DataTable = <T extends Record<string, any>,>({
   basePath
 }: Props<T>) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [pageSize, setPageSize] = useState("10");
+  const [pageSize, setPageSize] = useState("5");
   const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
 

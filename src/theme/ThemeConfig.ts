@@ -3,6 +3,10 @@ import { createTheme } from '@mui/material/styles';
 const paperColor = '#222222'
 
 export const theme = createTheme({
+  cssVariables: {
+    colorSchemeSelector: 'class',
+  },
+  defaultColorScheme: 'dark', // ← THIS FIXES THE FLASH
   shape: {
     borderRadius: 6
   },

@@ -21,13 +21,11 @@ export default function Instructors() {
           actions={
             <>
               <Button
-                size="sm"
               >
                 <FileDownloadIcon className="mr-2 h-4 w-4" />
                 Export
               </Button>
               <Button
-                size="sm"
               >
                 <AddIcon className="mr-2 h-4 w-4" />
                 Add Instructor
