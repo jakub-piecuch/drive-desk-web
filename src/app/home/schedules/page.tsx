@@ -8,7 +8,6 @@ import { format, getDay, parse, startOfWeek } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { useCallback, useMemo, useState } from 'react';
 import { Calendar, dateFnsLocalizer, Event, View } from 'react-big-calendar';
-// ❌ REMOVED: import 'react-big-calendar/lib/css/react-big-calendar.css';
 // ↑ This was overriding your ThemeConfig styles! All calendar styling is in ThemeConfig.ts
 
 // Configure date-fns localizer (moved outside component to prevent recreation)
@@ -97,7 +96,6 @@ export default function Schedules() {
     alert('Create Event Modal - implement this');
   };
 
-  // ✅ ENABLED: Custom event style getter with theme-matching colors
   const eventStyleGetter = useCallback(
     (event: ScheduleEvent) => {
       // Use colors that match your ThemeConfig
@@ -153,8 +151,8 @@ export default function Schedules() {
       </Box>
 
       <Box sx={{
-        p: { xs: 3, sm: 1 },
-        height: 'calc(100vh - 100px)'
+        p: { xs: 3, sm: 3 },
+        height: 'calc(100vh - 100px)',
       }}>
         <Calendar
           localizer={localizer}

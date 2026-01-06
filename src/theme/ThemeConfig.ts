@@ -1,7 +1,9 @@
 import { BorderBottom } from '@mui/icons-material';
+import { colors } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 
 const paperColor = '#222222'
+const borderColor = '#282828'
 
 export const theme = createTheme({
   cssVariables: {
@@ -79,123 +81,266 @@ export const theme = createTheme({
     },
   },
   components: {
-    MuiCssBaseline: {
+   MuiCssBaseline: {
       styleOverrides: {
-        // Global styles for react-big-calendar
+        // ============================================================================
+        // REACT-BIG-CALENDAR COMPREHENSIVE BORDER OVERRIDE
+        // ============================================================================
+        
+        // Base Calendar Container
         '.rbc-calendar': {
           backgroundColor: paperColor,
           borderRadius: '6px',
+          border: '1px solid',
           padding: '16px',
           height: '100%',
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         },
+
+        // ============================================================================
+        // MONTH VIEW - Grid Cell Borders
+        // ============================================================================
+        
+        '.rbc-month-view': {
+          border: `1px solid ${borderColor}`,
+          borderRadius: '6px',
+          overflow: 'hidden',
+        },
+        
+        // Month rows (horizontal lines)
+        '.rbc-month-row': {
+          borderTop: `1px solid ${borderColor}`,
+          borderColor: borderColor,
+        },
+        
+        // Individual row backgrounds
+        '.rbc-row-bg': {
+          borderColor: borderColor,
+        },
+        
+        // Day cells background (vertical lines between days)
+        '.rbc-day-bg': {
+          borderLeft: `1px solid ${borderColor}`,
+        },
+        '.rbc-day-bg:first-child': {
+          borderLeft: 'none',
+        },
+        
+        // Date cells (the numbered date cells)
+        '.rbc-date-cell': {
+          padding: '8px',
+          borderColor: borderColor,
+        },
+        
+        // Row segments
+        '.rbc-row-segment': {
+          padding: '0 2px 2px',
+        },
+        
+        // Row content wrapper
+        '.rbc-row-content': {
+          borderColor: borderColor,
+        },
+
+        // ============================================================================
+        // HEADERS - Day Names
+        // ============================================================================
+        
         '.rbc-header': {
           padding: '10px 3px',
           fontWeight: 600,
           color: '#ffffff',
-          borderBottom: '1px solid #282828',
+          borderBottom: `1px solid ${borderColor}`,
+          borderLeft: `1px solid ${borderColor}`, // Vertical separators
         },
-        '.rbc-today': {
-          backgroundColor: 'rgba(60, 136, 67, 0.1)',
+        '.rbc-header:first-child': {
+          borderLeft: 'none',
         },
-        '.rbc-off-range-bg': {
-          backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        '.rbc-header + .rbc-header': {
+          borderLeft: `1px solid ${borderColor}`,
         },
+
+        // ============================================================================
+        // WEEK/DAY VIEW - Time Slots
+        // ============================================================================
+        
+        '.rbc-time-view': {
+          border: `1px solid ${borderColor}`,
+          borderRadius: '6px',
+          overflow: 'hidden',
+        },
+        
+        // Time slot rows (horizontal hour lines)
+        '.rbc-time-slot': {
+          borderTop: `1px solid ${borderColor}`,
+        },
+        
+        // Day slot time slots (inside each day column)
+        '.rbc-day-slot .rbc-time-slot': {
+          borderTop: `1px solid ${borderColor}`,
+        },
+        
+        // Time content wrapper
+        '.rbc-time-content': {
+          borderTop: `2px solid ${borderColor}`,
+          borderLeft: `1px solid ${borderColor}`,
+        },
+        
+        // Time header (the day name headers in week view)
+        '.rbc-time-header': {
+          borderBottom: `1px solid ${borderColor}`,
+        },
+        
+        '.rbc-time-header-content': {
+          borderLeft: `1px solid ${borderColor}`,
+        },
+        
+        // Timeslot groups (vertical day columns)
+        '.rbc-timeslot-group': {
+          borderLeft: `1px solid ${borderColor}`,
+        },
+        
+        // Day slot columns
+        '.rbc-day-slot': {
+          borderLeft: `1px solid ${borderColor}`,
+        },
+        '.rbc-day-slot:first-child': {
+          borderLeft: 'none',
+        },
+        
+        // Time column (the left column with times)
+        '.rbc-time-column': {
+          borderRight: `1px solid ${borderColor}`,
+        },
+        
+        // Time gutter (left edge time labels)
+        '.rbc-time-gutter': {
+          borderRight: `1px solid ${borderColor}`,
+        },
+        
+        // Label container (time labels in gutter)
+        '.rbc-label': {
+          borderTop: `1px solid ${borderColor}`,
+        },
+
+        // ============================================================================
+        // AGENDA VIEW
+        // ============================================================================
+        
+        '.rbc-agenda-view': {
+          border: `1px solid ${borderColor}`,
+          borderRadius: '6px',
+          overflow: 'hidden',
+        },
+        
+        '.rbc-agenda-table': {
+          borderColor: borderColor,
+          
+          // Table cells
+          'thead > tr > th': {
+            borderBottom: `1px solid ${borderColor}`,
+          },
+          'tbody > tr > td': {
+            borderTop: `1px solid ${borderColor}`,
+          },
+        },
+        
+        '.rbc-agenda-date-cell, .rbc-agenda-time-cell': {
+          whiteSpace: 'nowrap',
+          padding: '12px',
+          borderLeft: `1px solid ${borderColor}`,
+        },
+        
+        '.rbc-agenda-event-cell': {
+          padding: '12px',
+        },
+
+        // ============================================================================
+        // EVENTS & INTERACTIONS
+        // ============================================================================
+        
         '.rbc-event': {
           padding: '2px 5px',
           fontSize: '0.875rem',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+          border: 'none', // Remove any default borders from events
         },
+        
         '.rbc-event:hover': {
           opacity: '0.8 !important',
           transform: 'translateY(-1px)',
           boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
         },
+        
         '.rbc-selected': {
           backgroundColor: '#2d6633 !important',
         },
+        
+        '.rbc-slot-selection': {
+          backgroundColor: 'rgba(60, 136, 67, 0.3)',
+          border: `1px dashed ${borderColor}`,
+        },
+
+        // ============================================================================
+        // TOOLBAR
+        // ============================================================================
+        
         '.rbc-toolbar': {
           padding: '10px 0',
           marginBottom: '10px',
           flexWrap: 'wrap',
           gap: '10px',
         },
+        
         '.rbc-toolbar button': {
           color: '#ffffff',
-          borderColor: '#282828',
+          borderColor: borderColor,
           backgroundColor: paperColor,
           padding: '6px 12px',
           fontSize: '0.875rem',
           borderRadius: '6px',
-          border: '1px solid #282828',
+          border: `1px solid ${borderColor}`,
           transition: 'all 0.2s ease',
           '&:hover': {
-            backgroundColor: 'grey',
-            borderColor: "#282828"
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            borderColor: borderColor,
+            color: '#ffffff'
           },
           '&:active, &.rbc-active': {
             backgroundColor: '#3c8843',
             color: '#ffffff',
-            borderColor: paperColor,
+            borderColor: borderColor,
           },
         },
+        
         '.rbc-toolbar-label': {
           fontSize: '1.25rem',
           fontWeight: 600,
           textTransform: 'capitalize',
         },
-        '.rbc-time-slot': {
-          borderTop: '1px solid #282828',
-        },
-        '.rbc-day-slot .rbc-time-slot': {
-          borderTop: '1px solid rgba(40, 40, 40, 0.5)',
-        },
-        '.rbc-time-content': {
-          borderTop: '2px solid #282828',
-        },
-        '.rbc-current-time-indicator': {
-          backgroundColor: '#3c8843',
-          height: '2px',
-        },
-        '.rbc-time-header-content': {
-          borderLeft: '1px solid #282828',
-        },
-        '.rbc-timeslot-group': {
-          borderLeft: '1px solid #282828',
-        },
-        '.rbc-month-view': {
-          border: '1px solid #282828',
-          borderRadius: '6px',
-          overflow: 'hidden',
-        },
-        '.rbc-month-row': {
-          borderTop: '1px solid #282828',
-          borderColor: '#282828',
+
+        // ============================================================================
+        // OVERLAYS & POPUPS
+        // ============================================================================
+        
+        '.rbc-overlay': {
+          background: paperColor,
+          border: `1px solid ${borderColor}`,
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          padding: '8px',
+          zIndex: 1000,
         },
         
-        '.rbc-day-bg': {
-          borderLeft: '1px solid #282828',  // ← Vertical lines between days (THIS ONE!)
-        },
-        '.rbc-day-bg:first-child': {
-          borderLeft: 'none',  // Remove double border on left edge
-        },
-        '.rbc-date-cell': {
+        '.rbc-overlay-header': {
+          borderBottom: `1px solid ${borderColor}`,
           padding: '8px',
+          margin: '-8px -8px 8px',
+          fontWeight: 600,
         },
-        '.rbc-off-range': {
-          opacity: 0.5,
-        },
-        '.rbc-time-view': {
-          border: '1px solid #282828',
-          borderRadius: '6px',
-          overflow: 'hidden',
-        },
-        '.rbc-slot-selection': {
-          backgroundColor: 'rgba(60, 136, 67, 0.3)',
-          border: '1px dashed #3c8843',
-        },
+        
         '.rbc-show-more': {
           backgroundColor: 'transparent',
           color: 'inherit',
@@ -209,42 +354,32 @@ export const theme = createTheme({
             color: '#3c8843',
           },
         },
-        '.rbc-overlay': {
-          background: paperColor,
-          border: '1px solid #282828',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-          padding: '8px',
-          zIndex: 1000,
+
+        // ============================================================================
+        // SPECIAL STATES
+        // ============================================================================
+        
+        '.rbc-today': {
+          backgroundColor: 'rgba(60, 136, 67, 0.1)',
         },
-        '.rbc-overlay-header': {
-          borderBottom: '1px solid #282828',
-          padding: '8px',
-          margin: '-8px -8px 8px',
-          fontWeight: 600,
+        
+        '.rbc-off-range-bg': {
+          backgroundColor: '#313131',
         },
-        '.rbc-agenda-view': {
-          border: '1px solid #282828',
-          borderRadius: '6px',
-          overflow: 'hidden',
+        
+        '.rbc-off-range': {
+          opacity: 0.5,
         },
-        '.rbc-agenda-table': {
-          borderColor: '#282828',
+        
+        '.rbc-current-time-indicator': {
+          backgroundColor: '#3c8843',
+          height: '2px',
         },
-        '.rbc-agenda-date-cell, .rbc-agenda-time-cell': {
-          whiteSpace: 'nowrap',
-          padding: '12px',
-        },
-        '.rbc-agenda-event-cell': {
-          padding: '12px',
-        },
-        '.rbc-header + .rbc-header': {
-          borderLeft: '1px solid #282828',
-        },
-        '.rbc-row-segment': {
-          padding: '0 2px 2px',
-        },
-        // Responsive styles
+
+        // ============================================================================
+        // RESPONSIVE MOBILE STYLES
+        // ============================================================================
+        
         '@media (max-width: 768px)': {
           '.rbc-toolbar': {
             flexDirection: 'column',
@@ -264,6 +399,15 @@ export const theme = createTheme({
             fontSize: '0.75rem',
             padding: '1px 3px',
           },
+        },
+
+        // ============================================================================
+        // NUCLEAR OPTION - Override ANY remaining white borders
+        // ============================================================================
+        
+        // This catches any classes I might have missed
+        '[class*="rbc-"]': {
+          borderColor: `${borderColor} !important`,
         },
       }
     },

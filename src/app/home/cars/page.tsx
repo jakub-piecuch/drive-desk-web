@@ -65,7 +65,7 @@ export default function Cars() {
 
   return (
     <>
-      <Box sx={{ p: { xs: 3, sm: 3, md: 3 } }}>
+      <Box sx={{ p: { xs: 3, sm: 3, md: 3 }, mb: -6 }}>
         <PageHeader
           title="Cars"
           actions={
