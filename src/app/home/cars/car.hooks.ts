@@ -27,7 +27,11 @@ export function useCarsTableData() {
     isLoading,
     isError,
     data: data ? data : [],
-    headers: ["Make", "Model", "Registration Number"]
+    headers: [
+      { key: 'make', label: 'Make' },
+      { key: 'model', label: 'Model' },
+      { key: 'registrationNumber', label: 'Registration Number' }
+    ]
   }
 }
 

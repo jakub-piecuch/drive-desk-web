@@ -1,21 +1,18 @@
+// src/app/layout.tsx
 "use client";
 
-import './globals.css';
+import EmotionRegistry from "@/theme/EmotionRegistry";
+import MuiThemeProvider from "@/theme/MuiThemeProvider";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ThemeProvider } from 'next-themes';
-import { SessionProvider } from "next-auth/react";
-import { Toaster } from "@/components/ui/sonner";
 import { useState } from "react";
-import { Inter } from 'next/font/google';
-
-const inter = Inter({ subsets: ['latin'] });
+import { Toaster } from "sonner";
+import './globals.css';
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -26,22 +23,16 @@ export default function RootLayout({
   }));
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        {/* <SessionProvider> */}
+    <html lang="en">
+      <body>
+        <EmotionRegistry>
           <QueryClientProvider client={queryClient}>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem={false}
-              disableTransitionOnChange
-            >
+            <MuiThemeProvider>
               {children}
-              <Toaster position="top-right" theme="light" />
-            </ThemeProvider>
-            {/* {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />} */}
+              <Toaster position="top-right" richColors />
+            </MuiThemeProvider>
           </QueryClientProvider>
-        {/* </SessionProvider> */}
+        </EmotionRegistry>
       </body>
     </html>
   );
