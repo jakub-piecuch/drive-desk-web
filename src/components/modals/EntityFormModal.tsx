@@ -4,7 +4,6 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 
 interface EntityFormModalProps {
@@ -48,8 +47,6 @@ export function EntityFormModal({
           component: 'form',
           onSubmit: handleSubmit,
         }
-      }}
-      sx={{
       }}
     >
       <DialogTitle sx={{ mb: -2 }} >{title}</DialogTitle>

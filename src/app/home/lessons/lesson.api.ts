@@ -1,9 +1,10 @@
 import { RESOURCE_HOST } from "@/config/env.config";
-import { CreateLesson, Lesson } from "./schedule.types";
+import { CreateLesson, Lesson } from "./lesson.types";
+import { PaginatedResponse } from "@/types/api.types";
 
 const API_DOMAIN_NAME = '/api/lessons';
 
-export const fetchLessons = async (): Promise<Lesson[]> => {
+export const fetchLessons = async (): Promise<PaginatedResponse<Lesson>> => {
   const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}`);
 
   if (!response.ok) {

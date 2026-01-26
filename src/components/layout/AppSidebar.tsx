@@ -195,9 +195,9 @@ export function AppSidebar() {
               onMobileClick={handleMobileNavClick} // ✅ ADDED
             />
             <NavItem
-              to="/home/schedules"
+              to="/home/lessons"
               icon={CalendarMonthIcon}
-              label="Schedules"
+              label="Lessons"
               collapsed={collapsed}
               isMobile={isMobile}
               onMobileClick={handleMobileNavClick} // ✅ ADDED
