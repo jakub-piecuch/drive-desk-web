@@ -31,7 +31,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       />
 
       <AppSidebar />
-      
+
       <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
         {isMobile && <Toolbar />}
         {children}
