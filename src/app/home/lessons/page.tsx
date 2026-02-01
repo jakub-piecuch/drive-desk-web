@@ -143,6 +143,10 @@ export default function Lessons() {
         p: { xs: 3, sm: 3 },
         height: 'calc(100vh - 100px)',
       }}>
+        {/*  TODO: use for users */}
+        {/* <a href='tel:+48123123123'>
+        twoj numer!!!!
+      </a> */}
         <Calendar
           localizer={localizer}
           events={events}
