@@ -77,10 +77,11 @@ export function useCreateCar() {
   });
 }
 
-export function useGetCarById() {
-  return useMutation({
-    // The function that performs fetcg
-    mutationFn: (id: string) => getCarById(id),
+export function useGetCarById(id: string | undefined) {
+  return useQuery({
+    queryKey: ['car', id],
+    queryFn: () => getCarById(id!),
+    enabled: !!id, // Don't fetch until id exists
   });
 }
 

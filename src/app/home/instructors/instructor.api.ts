@@ -21,11 +21,12 @@ export const getInstructorById = async (id: string): Promise<Instructor> => {
 
   if (!response.ok) {
     throw new Error(`Failed to fetch instructor by id: ${id}. Status: ${response.status}`);
-  } else {
-    console.log(response.status, `Fetched instructor: ${response.json()}.`)
-  }
+  } 
+    
+  const result = await response.json();
+  console.log(response.status, `Fetched instructor: ${result}.`)
 
-  return await response.json();
+  return result;
 }
 
 export const createInstructor = async (instructor: CreateInstructor): Promise<Instructor> => {

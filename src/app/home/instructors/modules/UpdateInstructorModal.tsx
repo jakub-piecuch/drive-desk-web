@@ -40,7 +40,7 @@ export function UpdateInstructorModal({
       setPhoneNumber(currentPhoneNumber)
       setErrors({ name: false, surname: false, email: false, phoneNumber: false });
     }
-  }, [open, currentName, currentSurname, currentEmail]);
+  }, [open, currentName, currentSurname, currentEmail, currentPhoneNumber]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

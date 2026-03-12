@@ -21,11 +21,12 @@ export const getCarById = async (id: string): Promise<Car> => {
 
   if (!response.ok) {
     throw new Error(`Failed to fetch car by id: ${id}. Status: ${response.status}`);
-  } else {
-    console.log(response.status, `Fetched car: ${response.json()}.`)
-  }
+  } 
+  
+  const result = await response.json();
+  console.log(response.status, `Fetched car: ${result}.`)
 
-  return await response.json();
+  return await result;
 }
 
 export const createCar = async (car: CreateCar): Promise<Car> => {
@@ -56,7 +57,7 @@ export const updateCarById = async (car: Car): Promise<Car> => {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to create car. Status: ${response.status}`);
+    throw new Error(`Failed to update car. Status: ${response.status}`);
   } else {
     console.log(response.status, `Updated car successfully.`)
   }

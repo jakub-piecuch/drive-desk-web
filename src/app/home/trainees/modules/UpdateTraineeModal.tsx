@@ -40,7 +40,7 @@ export function UpdateTraineeModal({
       setPhoneNumber(currentPhoneNumber)
       setErrors({ name: false, surname: false, email: false, phoneNumber: false });
     }
-  }, [open, currentName, currentSurname, currentEmail]);
+  }, [open, currentName, currentSurname, currentEmail, currentPhoneNumber]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,9 +127,9 @@ export function UpdateTraineeModal({
           id="phoneNumber"
           labelText="Phone Number"
           placeholder="Enter phone number..."
-          value={email}
+          value={phoneNumber}
           onChange={(e) => {
-            setEmail(e.target.value);
+            setPhoneNumber(e.target.value);
             if (errors.phoneNumber) setErrors(prev => ({ ...prev, phoneNumber: false }));
           }}
           error={errors.phoneNumber}
