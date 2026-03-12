@@ -22,11 +22,12 @@ export const getLessonById = async (id: string): Promise<Lesson> => {
 
   if (!response.ok) {
     throw new Error(`Failed to fetch lesson by id: ${id}. Status: ${response.status}`);
-  } else {
-    console.log(response.status, `Fetched lesson: ${response.json()}.`)
-  }
+  } 
+  
+  const result = await response.json();
+  console.log(response.status, `Fetched lesson: ${result}.`)
 
-  return await response.json();
+  return result;
 }
 
 export const createLesson = async (lesson: CreateLesson): Promise<Lesson> => {

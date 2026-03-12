@@ -21,11 +21,12 @@ export const getTraineeById = async (id: string): Promise<Trainee> => {
 
   if (!response.ok) {
     throw new Error(`Failed to fetch trainee by id: ${id}. Status: ${response.status}`);
-  } else {
-    console.log(response.status, `Fetched trainee: ${response.json()}.`)
-  }
+  } 
+  
+  const result = await response.json();
+  console.log(response.status, `Fetched trainee: ${result}.`)
 
-  return await response.json();
+  return result;
 }
 
 export const createTrainee = async (trainee: CreateTrainee): Promise<Trainee> => {
