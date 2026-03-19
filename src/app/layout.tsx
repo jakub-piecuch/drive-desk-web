@@ -3,6 +3,7 @@
 
 import EmotionRegistry from "@/theme/EmotionRegistry";
 import MuiThemeProvider from "@/theme/MuiThemeProvider";
+import { ClerkProvider } from "@clerk/nextjs";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from "react";
 import { Toaster } from "sonner";
@@ -23,17 +24,19 @@ export default function RootLayout({
   }));
 
   return (
-    <html lang="en">
-      <body>
-        <EmotionRegistry>
-          <QueryClientProvider client={queryClient}>
-            <MuiThemeProvider>
-              {children}
-              <Toaster position="top-right" richColors />
-            </MuiThemeProvider>
-          </QueryClientProvider>
-        </EmotionRegistry>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body>
+          <EmotionRegistry>
+            <QueryClientProvider client={queryClient}>
+              <MuiThemeProvider>
+                {children}
+                <Toaster position="top-right" richColors />
+              </MuiThemeProvider>
+            </QueryClientProvider>
+          </EmotionRegistry>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

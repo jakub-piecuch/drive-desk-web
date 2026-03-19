@@ -1,78 +1,33 @@
-import { RESOURCE_HOST } from "@/config/env.config";
-import { Instructor, CreateInstructor } from "./instructor.types";
+import type { RequestFn } from '@/hooks/useApiClient';
+import { Instructor, CreateInstructor } from './instructor.types';
 
-const API_DOMAIN_NAME = '/api/instructors';
+const PATH = '/api/instructors';
 
-export const fetchInstructors = async (): Promise<Instructor[]> => {
-  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}`);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch instructors: ${response.status}`);
-  }
-
-  // Parse the JSON once and store it in a variable
-  const data = await response.json();
-  console.log('instructors data:', data);
-  return data;
+export const fetchInstructors = async (request: RequestFn): Promise<Instructor[]> => {
+  const response = await request(PATH);
+  if (!response.ok) throw new Error(`Failed to fetch instructors: ${response.status}`);
+  return response.json();
 };
 
-export const getInstructorById = async (id: string): Promise<Instructor> => {
-  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}/${id}`);
+export const getInstructorById = async (request: RequestFn, id: string): Promise<Instructor> => {
+  const response = await request(`${PATH}/${id}`);
+  if (!response.ok) throw new Error(`Failed to fetch instructor ${id}: ${response.status}`);
+  return response.json();
+};
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch instructor by id: ${id}. Status: ${response.status}`);
-  } 
-    
-  const result = await response.json();
-  console.log(response.status, `Fetched instructor: ${result}.`)
+export const createInstructor = async (request: RequestFn, instructor: CreateInstructor): Promise<Instructor> => {
+  const response = await request(PATH, { method: 'POST', body: JSON.stringify(instructor) });
+  if (!response.ok) throw new Error(`Failed to create instructor: ${response.status}`);
+  return response.json();
+};
 
-  return result;
-}
+export const updateInstructorById = async (request: RequestFn, instructor: Instructor): Promise<Instructor> => {
+  const response = await request(`${PATH}/${instructor.id}`, { method: 'PUT', body: JSON.stringify(instructor) });
+  if (!response.ok) throw new Error(`Failed to update instructor: ${response.status}`);
+  return response.json();
+};
 
-export const createInstructor = async (instructor: CreateInstructor): Promise<Instructor> => {
-  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(instructor),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to create instructor. Status: ${response.status}`);
-  } else {
-    console.log(response.status, `Created instructor successfully.`)
-  }
-
-  return await response.json();
-}
-
-export const updateInstructorById = async (instructor: Instructor): Promise<Instructor> => {
-  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}/${instructor.id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(instructor),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to create instructor. Status: ${response.status}`);
-  } else {
-    console.log(response.status, `Updated instructor successfully.`)
-  }
-
-  return await response.json();
-}
-
-export const deleteInstructorById = async (id: string): Promise<void> => {
-  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}/${id}`, {
-    method: 'DELETE',
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to delete instructor by id: ${id} status: ${response.status}`);
-  } else {
-    console.log(response.status, `Deleted instructor succesfully. ${id}`)
-  }
-}
+export const deleteInstructorById = async (request: RequestFn, id: string): Promise<void> => {
+  const response = await request(`${PATH}/${id}`, { method: 'DELETE' });
+  if (!response.ok) throw new Error(`Failed to delete instructor ${id}: ${response.status}`);
+};

@@ -1,79 +1,34 @@
-import { RESOURCE_HOST } from "@/config/env.config";
-import { CreateLesson, Lesson } from "./lesson.types";
-import { PaginatedResponse } from "@/types/api.types";
+import type { RequestFn } from '@/hooks/useApiClient';
+import { PaginatedResponse } from '@/types/api.types';
+import { CreateLesson, Lesson } from './lesson.types';
 
-const API_DOMAIN_NAME = '/api/lessons';
+const PATH = '/api/lessons';
 
-export const fetchLessons = async (): Promise<PaginatedResponse<Lesson>> => {
-  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}`);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch lessons: ${response.status}`);
-  }
-
-  // Parse the JSON once and store it in a variable
-  const data = await response.json();
-  console.log('lessons data:', data);
-  return data;
+export const fetchLessons = async (request: RequestFn): Promise<PaginatedResponse<Lesson>> => {
+  const response = await request(PATH);
+  if (!response.ok) throw new Error(`Failed to fetch lessons: ${response.status}`);
+  return response.json();
 };
 
-export const getLessonById = async (id: string): Promise<Lesson> => {
-  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}/${id}`);
+export const getLessonById = async (request: RequestFn, id: string): Promise<Lesson> => {
+  const response = await request(`${PATH}/${id}`);
+  if (!response.ok) throw new Error(`Failed to fetch lesson ${id}: ${response.status}`);
+  return response.json();
+};
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch lesson by id: ${id}. Status: ${response.status}`);
-  } 
-  
-  const result = await response.json();
-  console.log(response.status, `Fetched lesson: ${result}.`)
+export const createLesson = async (request: RequestFn, lesson: CreateLesson): Promise<Lesson> => {
+  const response = await request(PATH, { method: 'POST', body: JSON.stringify(lesson) });
+  if (!response.ok) throw new Error(`Failed to create lesson: ${response.status}`);
+  return response.json();
+};
 
-  return result;
-}
+export const updateLessonById = async (request: RequestFn, lesson: Lesson): Promise<Lesson> => {
+  const response = await request(`${PATH}/${lesson.id}`, { method: 'PUT', body: JSON.stringify(lesson) });
+  if (!response.ok) throw new Error(`Failed to update lesson: ${response.status}`);
+  return response.json();
+};
 
-export const createLesson = async (lesson: CreateLesson): Promise<Lesson> => {
-  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(lesson),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to create lesson. Status: ${response.status}`);
-  } else {
-    console.log(response.status, `Created lesson successfully.`)
-  }
-
-  return await response.json();
-}
-
-export const updateLessonById = async (lesson: Lesson): Promise<Lesson> => {
-  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}/${lesson.id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(lesson),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to create lesson. Status: ${response.status}`);
-  } else {
-    console.log(response.status, `Updated lesson successfully.`)
-  }
-
-  return await response.json();
-}
-
-export const deleteLessonById = async (id: string): Promise<void> => {
-  const response = await fetch(`${RESOURCE_HOST()}${API_DOMAIN_NAME}/${id}`, {
-    method: 'DELETE',
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to delete lesson by id: ${id} status: ${response.status}`);
-  } else {
-    console.log(response.status, `Deleted lesson succesfully. ${id}`)
-  }
-}
+export const deleteLessonById = async (request: RequestFn, id: string): Promise<void> => {
+  const response = await request(`${PATH}/${id}`, { method: 'DELETE' });
+  if (!response.ok) throw new Error(`Failed to delete lesson ${id}: ${response.status}`);
+};

@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Coding Standards
+
+Before writing or modifying any code in this repository, always run the `/react-developer` command and follow the coding standards and best practices it defines.
+
 ## Commands
 
 ```bash
@@ -15,12 +19,14 @@ No test runner is configured.
 
 ## Backend
 
-The backend counterpart is a Java Spring service at `~/JavaProjects/book-and-drive-service`. Read it when you need to understand API contracts, endpoint signatures, request/response shapes, or authentication behaviour.
+The backend counterpart is a Java Spring service at `../book-and-drive-service`. Read it when you need to understand API contracts, endpoint signatures, request/response shapes, or authentication behaviour.
 
 ## Environment
 
 Requires a `.env.local` file with:
 - `NEXT_PUBLIC_RESOURCE_HOST` — base URL for the backend API
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` — Clerk publishable key
+- `CLERK_SECRET_KEY` — Clerk secret key (server-side only)
 
 ## Architecture
 
@@ -32,8 +38,15 @@ Requires a `.env.local` file with:
 - **Forms:** React Hook Form + Zod for validation
 - **Server state:** TanStack React Query 5 (configured in root layout with `refetchOnWindowFocus: false`, `retry: false`)
 - **Calendar:** React Big Calendar for lesson scheduling
-- **Auth:** Clerk + NextAuth (login feature in progress on `feat/PLAT-0004_login_sign_in`)
+- **Auth:** Clerk (`@clerk/nextjs`) — sole auth provider
 - **Toasts:** Sonner
+
+### Auth Flow
+
+- `src/middleware.ts` — protects `/home/*` routes via `clerkMiddleware` + `createRouteMatcher`, redirects unauthenticated users to `/auth/login`
+- `/auth/login` — custom MUI login page using `useSignIn` from `@clerk/nextjs`
+- `OrgActivationGuard` (in `Layout.tsx`) — ensures a Clerk org is active before any API calls are made; `Layout.tsx` gates rendering on `orgId` being set to prevent 403 flashes
+- `useApiClient` (`src/hooks/useApiClient.ts`) — attaches Bearer JWT to every request; throws on 403
 
 ### Feature Module Pattern
 
@@ -63,34 +76,10 @@ Shared types live in `src/types/`:
 ### Routing
 
 - `/` — landing page
-- `/auth/login` — login (WIP)
+- `/auth/login` — login page (Clerk, custom MUI UI)
 - `/home/*` — protected routes with sidebar layout (`src/app/home/layout.tsx`)
   - `/home/dashboard`, `/home/cars`, `/home/instructors`, `/home/trainees`, `/home/lessons`
 
 ### Path Aliases
 
 `@/*` maps to `src/*` (configured in `tsconfig.json`).
-
-## In-Progress: Clerk Auth Integration (feat/PLAT-0004_login_sign_in)
-
-Goal: replace the empty `src/app/auth/login/page.tsx` with a fully custom login **and** registration UI that matches the app's MUI dark theme (dark backgrounds `#222222`, green accent `#3c8843`, Inter font) — do **not** use Clerk's prebuilt `<SignIn />` / `<SignUp />` components.
-
-### Steps remaining
-
-1. **Wrap the app with `<ClerkProvider>`** in `src/app/layout.tsx` (outermost provider, above `EmotionRegistry`). Add `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` to `.env.local`.
-
-2. **Add `src/middleware.ts`** using Clerk's `clerkMiddleware` + `createRouteMatcher` to protect `/home/*` routes and redirect unauthenticated users to `/auth/login`.
-
-3. **Build the login page** (`src/app/auth/login/page.tsx`) using:
-   - `useSignIn` from `@clerk/nextjs` for the Clerk flow
-   - React Hook Form + Zod for validation (consistent with the rest of the app)
-   - MUI components (`TextField`, `Button`, `Box`, etc.) styled to match the dark theme
-   - Sonner toast on error
-   - Redirect to `/home/dashboard` on success
-
-4. **Add a registration page** at `src/app/auth/register/page.tsx` using:
-   - `useSignUp` from `@clerk/nextjs`
-   - Same form/validation/styling approach as login
-   - Link between login ↔ register pages
-
-5. **Remove NextAuth** (`next-auth` package + `src/types/next-auth.d.ts`) once Clerk is the sole auth provider.

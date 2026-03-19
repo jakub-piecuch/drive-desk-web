@@ -24,7 +24,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { signOut } from "next-auth/react";
+import { useClerk } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -100,6 +100,7 @@ const NavItem = ({ to, icon: Icon, label, collapsed, isMobile, onMobileClick }: 
 
 export function AppSidebar() {
   const isMobile = useIsMobile();
+  const { signOut } = useClerk();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => {
@@ -266,7 +267,7 @@ export function AppSidebar() {
           <Button
             fullWidth
             variant="outlined"
-            onClick={() => signOut({ callbackUrl: '/' })}
+            onClick={() => signOut({ redirectUrl: '/auth/login' })}
             sx={{
               minWidth: 'auto',
               px: 1,
@@ -278,7 +279,7 @@ export function AppSidebar() {
           <Button
             fullWidth
             variant="outlined"
-            onClick={() => signOut({ callbackUrl: '/' })}
+            onClick={() => signOut({ redirectUrl: '/auth/login' })}
             startIcon={<LogoutIcon fontSize="small" />}
           >
             Sign Out

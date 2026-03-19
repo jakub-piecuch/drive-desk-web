@@ -2,12 +2,16 @@
 "use client";
 
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { OrgActivationGuard } from "@/components/layout/OrgActivationGuard";
 import { useIsMobile } from "@/hooks/useBreakpoints";
 import Toolbar from "@mui/material/Toolbar";
+import { useAuth } from "@clerk/nextjs";
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const isMobile = useIsMobile();
+  const { orgId, isLoaded: authLoaded } = useAuth();
 
   return (
     <Box
@@ -30,12 +34,21 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         }}
       />
 
-      <AppSidebar />
+      <OrgActivationGuard />
 
-      <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
-        {isMobile && <Toolbar />}
-        {children}
-      </Box>
+      {!authLoaded || !orgId ? (
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <AppSidebar />
+          <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
+            {isMobile && <Toolbar />}
+            {children}
+          </Box>
+        </>
+      )}
     </Box>
   );
 };

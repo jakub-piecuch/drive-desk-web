@@ -1,107 +1,78 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createCar, deleteCarById, fetchCars, getCarById, updateCarById } from "./car.api";
-import { toast } from "sonner";
-import { Car, CreateCar } from "./car.types";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { useApiClient } from '@/hooks/useApiClient';
+import { createCar, deleteCarById, fetchCars, getCarById, updateCarById } from './car.api';
+import { Car, CreateCar } from './car.types';
+
+const QUERY_KEY = ['cars'] as const;
 
 export function useCars() {
-  const query = useQuery({
-    queryKey: ['cars'],
-    queryFn: fetchCars,
+  const { request } = useApiClient();
+  return useQuery({
+    queryKey: QUERY_KEY,
+    queryFn: () => fetchCars(request),
   });
-
-  console.log('Cars query state:', {
-    data: query.data,
-    isLoading: query.isLoading,
-    isError: query.isError,
-    error: query.error
-  });
-
-  return query;
 }
 
 export function useCarsTableData() {
-  const { data, isLoading, isError, error, ...query } = useCars();
-
+  const { data, isLoading, isError, ...query } = useCars();
   return {
     ...query,
     isLoading,
     isError,
-    data: data ? data : [],
+    data: data ?? [],
     headers: [
       { key: 'make', label: 'Make' },
       { key: 'model', label: 'Model' },
-      { key: 'registrationNumber', label: 'Registration Number' }
-    ]
-  }
+      { key: 'registrationNumber', label: 'Registration Number' },
+    ],
+  };
 }
 
-export function useDeleteCarById() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    // The function that performs the delete
-    mutationFn: (id: string) => deleteCarById(id),
-
-    // What to do if it succeeds
-    onSuccess: () => {
-      toast.success("Car deleted successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['cars'] });
-    },
-
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error deleting car: ${error}`);
-    }
+export function useGetCarById(id: string | undefined) {
+  const { request } = useApiClient();
+  return useQuery({
+    queryKey: ['car', id],
+    queryFn: () => getCarById(request, id!),
+    enabled: !!id,
   });
 }
 
 export function useCreateCar() {
+  const { request } = useApiClient();
   const queryClient = useQueryClient();
-
   return useMutation({
-    // The function that performs create
-    mutationFn: (car: CreateCar) => createCar(car),
-
-    // What to do if it succeeds
+    mutationFn: (car: CreateCar) => createCar(request, car),
     onSuccess: () => {
-      toast.success("Car created successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['cars'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Car created successfully');
     },
-
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error creating car: ${error}`);
-    }
-  });
-}
-
-export function useGetCarById(id: string | undefined) {
-  return useQuery({
-    queryKey: ['car', id],
-    queryFn: () => getCarById(id!),
-    enabled: !!id, // Don't fetch until id exists
+    onError: () => toast.error('Error creating car'),
   });
 }
 
 export function useUpdateCarById() {
+  const { request } = useApiClient();
   const queryClient = useQueryClient();
-
   return useMutation({
-    // The function that performs update
-    mutationFn: (car: Car) => updateCarById(car),
-
-    // What to do if it succeeds
+    mutationFn: (car: Car) => updateCarById(request, car),
     onSuccess: () => {
-      toast.success("Car updated successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['cars'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Car updated successfully');
     },
+    onError: () => toast.error('Error updating car'),
+  });
+}
 
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error updating car: ${error}`);
-    }
+export function useDeleteCarById() {
+  const { request } = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteCarById(request, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Car deleted successfully');
+    },
+    onError: () => toast.error('Error deleting car'),
   });
 }

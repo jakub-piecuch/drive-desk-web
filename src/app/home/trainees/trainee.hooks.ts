@@ -1,107 +1,77 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTrainee, deleteTraineeById, fetchTrainees, getTraineeById, updateTraineeById } from "./trainee.api";
-import { toast } from "sonner";
-import { Trainee, CreateTrainee } from "./trainee.types";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { useApiClient } from '@/hooks/useApiClient';
+import { createTrainee, deleteTraineeById, fetchTrainees, getTraineeById, updateTraineeById } from './trainee.api';
+import { CreateTrainee, Trainee } from './trainee.types';
+
+const QUERY_KEY = ['trainees'] as const;
 
 export function useTrainees() {
-  const query = useQuery({
-    queryKey: ['trainees'],
-    queryFn: fetchTrainees,
+  const { request } = useApiClient();
+  return useQuery({
+    queryKey: QUERY_KEY,
+    queryFn: () => fetchTrainees(request),
   });
-
-  console.log('Trainees query state:', {
-    data: query.data,
-    isLoading: query.isLoading,
-    isError: query.isError,
-    error: query.error
-  });
-
-  return query;
 }
 
 export function useTraineesTableData() {
-  const { data, isLoading, isError, error, ...query } = useTrainees();
-
+  const { data, isLoading, isError, ...query } = useTrainees();
   return {
     ...query,
     isLoading,
     isError,
-    data: data ? data : [],
+    data: data ?? [],
     headers: [
       { key: 'name', label: 'Name' },
       { key: 'surname', label: 'Surname' },
-      { key: 'email', label: 'Email Number' },
-      { key: 'phoneNumber', label: 'Phone Number'}
-    ]
-  }
+      { key: 'email', label: 'Email' },
+      { key: 'phoneNumber', label: 'Phone Number' },
+    ],
+  };
 }
 
-export function useDeleteTraineeById() {
-  const queryClient = useQueryClient();
-
+export function useGetTraineeById() {
+  const { request } = useApiClient();
   return useMutation({
-    // The function that performs the delete
-    mutationFn: (id: string) => deleteTraineeById(id),
-
-    // What to do if it succeeds
-    onSuccess: () => {
-      toast.success("Trainee deleted successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['trainees'] });
-    },
-
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error deleting trainee: ${error}`);
-    }
+    mutationFn: (id: string) => getTraineeById(request, id),
   });
 }
 
 export function useCreateTrainee() {
+  const { request } = useApiClient();
   const queryClient = useQueryClient();
-
   return useMutation({
-    // The function that performs create
-    mutationFn: (trainee: CreateTrainee) => createTrainee(trainee),
-
-    // What to do if it succeeds
+    mutationFn: (trainee: CreateTrainee) => createTrainee(request, trainee),
     onSuccess: () => {
-      toast.success("Trainee created successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['trainees'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Trainee created successfully');
     },
-
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error creating trainee: ${error}`);
-    }
-  });
-}
-
-export function useGetTraineeById() {
-  return useMutation({
-    // The function that performs fetcg
-    mutationFn: (id: string) => getTraineeById(id),
+    onError: () => toast.error('Error creating trainee'),
   });
 }
 
 export function useUpdateTraineeById() {
+  const { request } = useApiClient();
   const queryClient = useQueryClient();
-
   return useMutation({
-    // The function that performs update
-    mutationFn: (trainee: Trainee) => updateTraineeById(trainee),
-
-    // What to do if it succeeds
+    mutationFn: (trainee: Trainee) => updateTraineeById(request, trainee),
     onSuccess: () => {
-      toast.success("Trainee updated successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['trainees'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Trainee updated successfully');
     },
+    onError: () => toast.error('Error updating trainee'),
+  });
+}
 
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error updating trainee: ${error}`);
-    }
+export function useDeleteTraineeById() {
+  const { request } = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteTraineeById(request, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Trainee deleted successfully');
+    },
+    onError: () => toast.error('Error deleting trainee'),
   });
 }
