@@ -53,9 +53,11 @@ export default function LoginPage() {
         toast.success('Verification code sent to your email');
       }
     } catch (err: unknown) {
-      const message =
-        (err as { errors?: { message: string }[] })?.errors?.[0]?.message ??
-        'Invalid email or password';
+      const error = (err as { errors?: { code: string; message: string }[] })?.errors?.[0];
+      const credentialErrors = ['form_password_incorrect', 'form_identifier_not_found'];
+      const message = error && credentialErrors.includes(error.code)
+        ? 'Invalid email or password'
+        : error?.message ?? 'Something went wrong. Please try again.';
       toast.error(message);
     }
   };
