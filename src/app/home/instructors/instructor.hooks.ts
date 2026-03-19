@@ -1,107 +1,77 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createInstructor, deleteInstructorById, fetchInstructors, getInstructorById, updateInstructorById } from "./instructor.api";
-import { toast } from "sonner";
-import { Instructor, CreateInstructor } from "./instructor.types";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { useApiClient } from '@/hooks/useApiClient';
+import { createInstructor, deleteInstructorById, fetchInstructors, getInstructorById, updateInstructorById } from './instructor.api';
+import { CreateInstructor, Instructor } from './instructor.types';
+
+const QUERY_KEY = ['instructors'] as const;
 
 export function useInstructors() {
-  const query = useQuery({
-    queryKey: ['instructors'],
-    queryFn: fetchInstructors,
+  const { request } = useApiClient();
+  return useQuery({
+    queryKey: QUERY_KEY,
+    queryFn: () => fetchInstructors(request),
   });
-
-  console.log('Instructors query state:', {
-    data: query.data,
-    isLoading: query.isLoading,
-    isError: query.isError,
-    error: query.error
-  });
-
-  return query;
 }
 
 export function useInstructorsTableData() {
-  const { data, isLoading, isError, error, ...query } = useInstructors();
-
+  const { data, isLoading, isError, ...query } = useInstructors();
   return {
     ...query,
     isLoading,
     isError,
-    data: data ? data : [],
+    data: data ?? [],
     headers: [
       { key: 'name', label: 'Name' },
       { key: 'surname', label: 'Surname' },
-      { key: 'email', label: 'Email Number' },
-      { key: 'phoneNumber', label: 'Phone Number'}
-    ]
-  }
+      { key: 'email', label: 'Email' },
+      { key: 'phoneNumber', label: 'Phone Number' },
+    ],
+  };
 }
 
-export function useDeleteInstructorById() {
-  const queryClient = useQueryClient();
-
+export function useGetInstructorById() {
+  const { request } = useApiClient();
   return useMutation({
-    // The function that performs the delete
-    mutationFn: (id: string) => deleteInstructorById(id),
-
-    // What to do if it succeeds
-    onSuccess: () => {
-      toast.success("Instructor deleted successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['instructors'] });
-    },
-
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error deleting instructor: ${error}`);
-    }
+    mutationFn: (id: string) => getInstructorById(request, id),
   });
 }
 
 export function useCreateInstructor() {
+  const { request } = useApiClient();
   const queryClient = useQueryClient();
-
   return useMutation({
-    // The function that performs create
-    mutationFn: (instructor: CreateInstructor) => createInstructor(instructor),
-
-    // What to do if it succeeds
+    mutationFn: (instructor: CreateInstructor) => createInstructor(request, instructor),
     onSuccess: () => {
-      toast.success("Instructor created successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['instructors'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Instructor created successfully');
     },
-
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error creating instructor: ${error}`);
-    }
-  });
-}
-
-export function useGetInstructorById() {
-  return useMutation({
-    // The function that performs fetcg
-    mutationFn: (id: string) => getInstructorById(id),
+    onError: () => toast.error('Error creating instructor'),
   });
 }
 
 export function useUpdateInstructorById() {
+  const { request } = useApiClient();
   const queryClient = useQueryClient();
-
   return useMutation({
-    // The function that performs update
-    mutationFn: (instructor: Instructor) => updateInstructorById(instructor),
-
-    // What to do if it succeeds
+    mutationFn: (instructor: Instructor) => updateInstructorById(request, instructor),
     onSuccess: () => {
-      toast.success("Instructor updated successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['instructors'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Instructor updated successfully');
     },
+    onError: () => toast.error('Error updating instructor'),
+  });
+}
 
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error updating instructor: ${error}`);
-    }
+export function useDeleteInstructorById() {
+  const { request } = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteInstructorById(request, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Instructor deleted successfully');
+    },
+    onError: () => toast.error('Error deleting instructor'),
   });
 }

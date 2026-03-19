@@ -1,35 +1,26 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createLesson, deleteLessonById, fetchLessons, getLessonById, updateLessonById } from "./lesson.api";
-import { toast } from "sonner";
-import { Lesson, CreateLesson, LessonEvent } from "./lesson.types";
-import { useMemo } from "react";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { toast } from 'sonner';
+import { useApiClient } from '@/hooks/useApiClient';
+import { createLesson, deleteLessonById, fetchLessons, getLessonById, updateLessonById } from './lesson.api';
+import { CreateLesson, Lesson, LessonEvent } from './lesson.types';
+
+const QUERY_KEY = ['lessons'] as const;
 
 export function useLessons() {
-  const query = useQuery({
-    queryKey: ['lessons'],
-    queryFn: fetchLessons,
+  const { request } = useApiClient();
+  return useQuery({
+    queryKey: QUERY_KEY,
+    queryFn: () => fetchLessons(request),
   });
-
-  console.log('Lessons query state:', {
-    data: query.data,
-    isLoading: query.isLoading,
-    isError: query.isError,
-    error: query.error
-  });
-
-  return query;
 }
 
 export function useLessonEvents() {
   const { data, isLoading, isError, error } = useLessons();
 
   const events: LessonEvent[] = useMemo(() => {
-    const lessons = data?.content
-    
-    if (!lessons || !Array.isArray(lessons)) {
-      return [];
-    }
-
+    const lessons = data?.content;
+    if (!lessons || !Array.isArray(lessons)) return [];
     return lessons.map((lesson): LessonEvent => ({
       id: lesson.id,
       title: 'Driving Lesson',
@@ -42,80 +33,51 @@ export function useLessonEvents() {
     }));
   }, [data]);
 
-  return {
-    events,
-    isLoading,
-    isError,
-    error,
-  };
+  return { events, isLoading, isError, error };
 }
 
-export function useDeleteLessonById() {
-  const queryClient = useQueryClient();
-
+export function useGetLessonById() {
+  const { request } = useApiClient();
   return useMutation({
-    // The function that performs the delete
-    mutationFn: (id: string) => deleteLessonById(id),
-
-    // What to do if it succeeds
-    onSuccess: () => {
-      toast.success("Lesson deleted successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
-    },
-
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error deleting lesson: ${error}`);
-    }
+    mutationFn: (id: string) => getLessonById(request, id),
   });
 }
 
 export function useCreateLesson() {
+  const { request } = useApiClient();
   const queryClient = useQueryClient();
-
   return useMutation({
-    // The function that performs create
-    mutationFn: (lesson: CreateLesson) => createLesson(lesson),
-
-    // What to do if it succeeds
+    mutationFn: (lesson: CreateLesson) => createLesson(request, lesson),
     onSuccess: () => {
-      toast.success("Lesson created successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Lesson created successfully');
     },
-
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error creating lesson: ${error}`);
-    }
-  });
-}
-
-export function useGetLessonById() {
-  return useMutation({
-    // The function that performs fetcg
-    mutationFn: (id: string) => getLessonById(id),
+    onError: () => toast.error('Error creating lesson'),
   });
 }
 
 export function useUpdateLessonById() {
+  const { request } = useApiClient();
   const queryClient = useQueryClient();
-
   return useMutation({
-    // The function that performs update
-    mutationFn: (lesson: Lesson) => updateLessonById(lesson),
-
-    // What to do if it succeeds
+    mutationFn: (lesson: Lesson) => updateLessonById(request, lesson),
     onSuccess: () => {
-      toast.success("Lesson updated successfully");
-      // This forces the list to refresh automatically
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Lesson updated successfully');
     },
+    onError: () => toast.error('Error updating lesson'),
+  });
+}
 
-    // What to do if it fails
-    onError: (error) => {
-      toast.error(`Error updating lesson: ${error}`);
-    }
+export function useDeleteLessonById() {
+  const { request } = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteLessonById(request, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success('Lesson deleted successfully');
+    },
+    onError: () => toast.error('Error deleting lesson'),
   });
 }
