@@ -1,7 +1,5 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import { useSignIn } from '@clerk/nextjs';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
