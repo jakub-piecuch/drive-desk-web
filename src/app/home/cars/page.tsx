@@ -28,7 +28,7 @@ export default function Cars() {
     registrationNumber: ''
   });
 
-  const handleRowClick = (item: any) => {
+  const handleRowClick = (_item: Car) => {
     // empty for now
   };
 

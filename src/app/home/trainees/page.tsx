@@ -29,7 +29,7 @@ export default function Trainees() {
     phoneNumber: ''
   });
 
-  const handleRowClick = (item: any) => {
+  const handleRowClick = (_item: Trainee) => {
     // empty for now
   };
 
