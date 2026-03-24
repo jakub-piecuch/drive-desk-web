@@ -62,7 +62,7 @@ export default function NotFound() {
             maxWidth: 500
           }}
         >
-          The page you're looking for doesn't exist or has been moved. Use the sidebar to navigate or go back to the dashboard.
+          The page you&apos;re looking for doesn&apos;t exist or has been moved. Use the sidebar to navigate or go back to the dashboard.
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>

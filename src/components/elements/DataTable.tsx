@@ -31,6 +31,7 @@ interface TableHeader {
   label: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface Props<T extends Record<string, any>> {
   headers: TableHeader[];
   data: T[];
@@ -45,6 +46,7 @@ interface Props<T extends Record<string, any>> {
   basePath?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const DataTable = <T extends Record<string, any>,>({
   headers,
   data,
