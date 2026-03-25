@@ -127,9 +127,9 @@ export function UpdateInstructorModal({
           id="phoneNumber"
           labelText="Phone Number"
           placeholder="Enter phone number..."
-          value={email}
+          value={phoneNumber}
           onChange={(e) => {
-            setEmail(e.target.value);
+            setPhoneNumber(e.target.value);
             if (errors.phoneNumber) setErrors(prev => ({ ...prev, phoneNumber: false }));
           }}
           error={errors.phoneNumber}
