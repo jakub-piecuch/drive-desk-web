@@ -24,6 +24,7 @@ export function CreateTraineeModal({ isOpen: open, onOpenChange }: CreateTrainee
       setName('');
       setSurname('');
       setEmail('');
+      setPhoneNumber('');
       setErrors({ name: false, surname: false, email: false, phoneNumber: false });
     }
   }, [open]);

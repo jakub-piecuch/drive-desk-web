@@ -24,6 +24,7 @@ export function CreateInstructorModal({ isOpen: open, onOpenChange }: CreateInst
       setName('');
       setSurname('');
       setEmail('');
+      setPhoneNumber('');
       setErrors({ name: false, surname: false, email: false, phoneNumber: false });
     }
   }, [open]);
