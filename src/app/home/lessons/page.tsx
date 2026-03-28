@@ -137,10 +137,12 @@ export default function Lessons() {
           showMultiDayTimes
           defaultDate={new Date()}
           formats={formats}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           components={{
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             toolbar: CalendarToolbar as any,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             header: (view === 'week' || (view as string) === 'threeDay') ? WeekHeader as any : undefined,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             month: { header: MonthHeader as any },
             event: ({ event }: { event: LessonEvent }) => (
               <span style={{ fontSize: '0.75rem', fontWeight: 600, padding: '6px 2px 2px' }}>{event.title}</span>

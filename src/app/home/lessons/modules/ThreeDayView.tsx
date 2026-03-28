@@ -2,10 +2,27 @@
 
 import React from 'react';
 import { Navigate } from 'react-big-calendar';
-// @ts-ignore – react-big-calendar internal module has no types
+// @ts-expect-error – react-big-calendar internal module has no types
 import TimeGrid from 'react-big-calendar/lib/TimeGrid';
 
-export class ThreeDayView extends React.Component<any> {
+interface LocalizerApi {
+  startOf(date: Date, unit: string): Date;
+  endOf(date: Date, unit: string): Date;
+  add(date: Date, amount: number, unit: string): Date;
+  format(range: { start: Date; end?: Date }, formatStr: string): string;
+}
+
+interface ThreeDayViewProps {
+  date: Date;
+  localizer: LocalizerApi;
+  min?: Date;
+  max?: Date;
+  scrollToTime?: Date;
+  enableAutoScroll?: boolean;
+  [key: string]: unknown;
+}
+
+export class ThreeDayView extends React.Component<ThreeDayViewProps> {
   render() {
     const {
       date,
@@ -33,11 +50,11 @@ export class ThreeDayView extends React.Component<any> {
     );
   }
 
-  static range(date: Date, { localizer }: any) {
+  static range(date: Date, { localizer }: { localizer: LocalizerApi }) {
     return [0, 1, 2].map((i) => localizer.add(date, i, 'day'));
   }
 
-  static navigate(date: Date, action: any, { localizer }: any) {
+  static navigate(date: Date, action: string, { localizer }: { localizer: LocalizerApi }) {
     switch (action) {
       case Navigate.PREVIOUS:
         return localizer.add(date, -3, 'day');
@@ -48,7 +65,7 @@ export class ThreeDayView extends React.Component<any> {
     }
   }
 
-  static title(date: Date, { localizer }: any) {
+  static title(date: Date, { localizer }: { localizer: LocalizerApi }) {
     const [start, ...rest] = ThreeDayView.range(date, { localizer });
     return localizer.format({ start, end: rest.pop() }, 'dayRangeHeaderFormat');
   }
