@@ -6,7 +6,9 @@ import { PageHeader } from "@/components/elements/PageHeader";
 import AddIcon from '@mui/icons-material/Add';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Fab from "@mui/material/Fab";
 import { useState } from "react";
+import { useIsMobile } from "@/hooks/useBreakpoints";
 import { useCarsTableData, useDeleteCarById } from "./car.hooks";
 import { Car } from "./car.types";
 import { CreateCarModal } from "./modules/CreateCarModal";
@@ -15,6 +17,7 @@ import { UpdateCarModal } from "./modules/UpdateCarModal";
 export default function Cars() {
   const deleteCarMutation = useDeleteCarById();
   const cars = useCarsTableData();
+  const isMobile = useIsMobile();
 
   const [isCreateCarModalOpen, setIsCreateCarModalOpen] = useState(false);
   const [isUpdateCarModalOpen, setIsUpdateCarModalOpen] = useState(false);
@@ -65,22 +68,19 @@ export default function Cars() {
 
   return (
     <>
-      <Box sx={{ p: { xs: 3, sm: 3, md: 3 }, mb: -6 }}>
-        <PageHeader
-          title="Cars"
-          actions={
-            <>
-              <Button
-                variant="contained"
-                onClick={handleCreateCarClick}
-              >
+      {!isMobile && (
+        <Box sx={{ p: { sm: 3, md: 3 }, mb: -6 }}>
+          <PageHeader
+            title="Cars"
+            actions={
+              <Button variant="contained" onClick={handleCreateCarClick}>
                 <AddIcon className="mr-2 h-4 w-4" />
                 Add Car
               </Button>
-            </>
-          }
-        />
-      </Box>
+            }
+          />
+        </Box>
+      )}
 
       <Box sx={{ mt: -2, p: { xs: 0, sm: 0, md: 3 } }}>
         <DataTable
@@ -91,11 +91,22 @@ export default function Cars() {
           isError={cars.isError}
           idField="id"
           searchField="make"
+          cardTitleFields={['make', 'model']}
           onRowClick={handleRowClick}
           onDeleteClick={handleDeleteClick}
           onEditClick={handleEditClick}
         />
       </Box>
+
+      {isMobile && (
+        <Fab
+          color="primary"
+          onClick={handleCreateCarClick}
+          sx={{ position: 'fixed', bottom: 24, right: 24 }}
+        >
+          <AddIcon />
+        </Fab>
+      )}
 
       <CreateCarModal
         isOpen={isCreateCarModalOpen}

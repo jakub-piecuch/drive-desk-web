@@ -4,6 +4,9 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';  // V3 work
 import { format } from 'date-fns';
 import { useState } from 'react';
 
+type DateTimeView = 'year' | 'month' | 'day' | 'hours' | 'minutes' | 'seconds';
+const DATE_VIEWS: DateTimeView[] = ['year', 'month', 'day'];
+
 interface DateTimeSelectorProps {
   value: string;
   onChange: (isoString: string) => void;
@@ -44,14 +47,20 @@ export function DateTimeSelector({
   maxDateTime,
 }: DateTimeSelectorProps) {
   const [open, setOpen] = useState(false);
+  const [view, setView] = useState<DateTimeView>('day');
 
   const dateValue = value ? new Date(value) : null;
 
   const handleChange = (newValue: Date | null) => {
     if (newValue && !isNaN(newValue.getTime())) {
-      // Format to "2025-01-13T12:12:12" (ISO format without timezone/milliseconds)
-      const isoString = format(newValue, "yyyy-MM-dd'T'HH:mm:ss");
-      onChange(isoString);
+      if (DATE_VIEWS.includes(view)) {
+        const withMidnight = new Date(newValue);
+        withMidnight.setHours(0, 0, 0, 0);
+        onChange(format(withMidnight, "yyyy-MM-dd'T'HH:mm:ss"));
+        setView('hours');
+      } else {
+        onChange(format(newValue, "yyyy-MM-dd'T'HH:mm:ss"));
+      }
     } else {
       onChange('');
     }
@@ -68,7 +77,9 @@ export function DateTimeSelector({
         maxDateTime={maxDateTime}
         open={open}
         onOpen={() => setOpen(true)}
-        onClose={() => setOpen(false)}
+        onClose={() => { setOpen(false); setView('day'); }}
+        view={view}
+        onViewChange={(newView) => setView(newView as DateTimeView)}
         slotProps={{
           textField: {
             fullWidth: true,

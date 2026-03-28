@@ -96,7 +96,6 @@ export const theme = createTheme({
           height: '100%',
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         },
-
         // ============================================================================
         // MONTH VIEW - Grid Cell Borders
         // ============================================================================
@@ -147,7 +146,7 @@ export const theme = createTheme({
         // ============================================================================
         
         '.rbc-header': {
-          padding: '10px 3px',
+          padding: '6px 3px',
           fontWeight: 600,
           color: '#ffffff',
           borderBottom: `1px solid ${borderColor}`,
@@ -186,9 +185,17 @@ export const theme = createTheme({
           borderLeft: `1px solid ${borderColor}`,
         },
         
+        // Hide the all-day row (empty row in day/week views)
+        '.rbc-allday-cell': {
+          display: 'none',
+        },
+
         // Time header (the day name headers in week view)
         '.rbc-time-header': {
           borderBottom: `1px solid ${borderColor}`,
+        },
+        '.rbc-time-header .rbc-header': {
+          minHeight: '64px',
         },
         
         '.rbc-time-header-content': {
@@ -213,6 +220,13 @@ export const theme = createTheme({
           borderRight: `1px solid ${borderColor}`,
         },
         
+        '.rbc-event-label': {
+          display: 'none',
+        },
+        '.rbc-event-content': {
+          paddingTop: '2px',
+        },
+
         // Time gutter (left edge time labels)
         '.rbc-time-gutter': {
           borderRight: `1px solid ${borderColor}`,
@@ -379,18 +393,8 @@ export const theme = createTheme({
         // ============================================================================
         // RESPONSIVE MOBILE STYLES
         // ============================================================================
-        
+
         '@media (max-width: 768px)': {
-          '.rbc-toolbar': {
-            flexDirection: 'column',
-            alignItems: 'stretch',
-          },
-          '.rbc-toolbar > *': {
-            marginBottom: '8px',
-          },
-          '.rbc-toolbar button': {
-            width: '100%',
-          },
           '.rbc-header': {
             padding: '8px 2px',
             fontSize: '0.75rem',
