@@ -81,7 +81,7 @@ export function LessonEventDrawer({ event, isOpen, onClose }: LessonEventDrawerP
     }
 
     updateLesson(
-      { id: event.id, startTime, endTime, instructorId: instructorId!, traineeId: traineeId!, carId },
+      { id: event.id, startTime, endTime, instructorId: instructorId!, traineeId: traineeId!, carId: carId ?? undefined },
       { onSuccess: () => { setMode('view'); onClose(); } }
     );
   };
