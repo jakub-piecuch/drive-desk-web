@@ -6,7 +6,9 @@ import { PageHeader } from "@/components/elements/PageHeader";
 import AddIcon from '@mui/icons-material/Add';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Fab from "@mui/material/Fab";
 import { useState } from "react";
+import { useIsMobile } from "@/hooks/useBreakpoints";
 import { useTraineesTableData, useDeleteTraineeById } from "./trainee.hooks";
 import { Trainee } from "./trainee.types";
 import { CreateTraineeModal } from "./modules/CreateTraineeModal";
@@ -15,6 +17,7 @@ import { UpdateTraineeModal } from "./modules/UpdateTraineeModal";
 export default function Trainees() {
   const deleteTraineeMutation = useDeleteTraineeById();
   const trainees = useTraineesTableData();
+  const isMobile = useIsMobile();
 
   const [isCreateTraineeModalOpen, setIsCreateTraineeModalOpen] = useState(false);
   const [isUpdateTraineeModalOpen, setIsUpdateTraineeModalOpen] = useState(false);
@@ -65,22 +68,19 @@ export default function Trainees() {
 
   return (
     <>
-      <Box sx={{ p: { xs: 3, sm: 3, md: 3 }, mb: -6 }}>
-        <PageHeader
-          title="Trainees"
-          actions={
-            <>
-              <Button
-                variant="contained"
-                onClick={handleCreateTraineeClick}
-              >
+      {!isMobile && (
+        <Box sx={{ p: { sm: 3, md: 3 }, mb: -6 }}>
+          <PageHeader
+            title="Trainees"
+            actions={
+              <Button variant="contained" onClick={handleCreateTraineeClick}>
                 <AddIcon className="mr-2 h-4 w-4" />
                 Add Trainee
               </Button>
-            </>
-          }
-        />
-      </Box>
+            }
+          />
+        </Box>
+      )}
 
       <Box sx={{ mt: -2, p: { xs: 0, sm: 0, md: 3 } }}>
         <DataTable
@@ -91,11 +91,22 @@ export default function Trainees() {
           isError={trainees.isError}
           idField="id"
           searchField="name"
+          cardTitleFields={['name', 'surname']}
           onRowClick={handleRowClick}
           onDeleteClick={handleDeleteClick}
           onEditClick={handleEditClick}
         />
       </Box>
+
+      {isMobile && (
+        <Fab
+          color="primary"
+          onClick={handleCreateTraineeClick}
+          sx={{ position: 'fixed', bottom: 24, right: 24 }}
+        >
+          <AddIcon />
+        </Fab>
+      )}
 
       <CreateTraineeModal
         isOpen={isCreateTraineeModalOpen}

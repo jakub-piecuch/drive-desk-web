@@ -51,7 +51,7 @@ export function CreateEventModal({
         traineeId: false,
       });
     }
-  }, [open]);
+  }, [open, initialStartTime, initialEndTime]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

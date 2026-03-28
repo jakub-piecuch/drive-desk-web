@@ -1,4 +1,5 @@
 import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
@@ -19,12 +20,15 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
-import SearchIcon from '@mui/icons-material/Search'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';;
+import SearchIcon from '@mui/icons-material/Search';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { useIsMobile } from "@/hooks/useBreakpoints";
 
 interface TableHeader {
   key: string;
@@ -40,6 +44,7 @@ interface Props<T extends Record<string, any>> {
   isError: boolean;
   idField?: keyof T;
   searchField?: keyof T;
+  cardTitleFields?: (keyof T)[];
   onRowClick?: (item: T) => void;
   onDeleteClick?: (item: T) => void;
   onEditClick?: (item: T) => void;
@@ -50,22 +55,22 @@ interface Props<T extends Record<string, any>> {
 export const DataTable = <T extends Record<string, any>,>({
   headers,
   data,
-  description = "items",
   isLoading,
   isError,
   idField = "id" as keyof T,
   searchField,
+  cardTitleFields,
   onRowClick,
   onDeleteClick,
   onEditClick,
   basePath
 }: Props<T>) => {
+  const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState("");
   const [pageSize, setPageSize] = useState("5");
   const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
 
-  // Store both anchor element AND the selected item
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedItem, setSelectedItem] = useState<T | null>(null);
   const open = Boolean(anchorEl);
@@ -85,7 +90,6 @@ export const DataTable = <T extends Record<string, any>,>({
   const indexOfFirstItem = indexOfLastItem - parseInt(pageSize);
   const currentData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Update to store the item when opening menu
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, item: T) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
@@ -99,7 +103,6 @@ export const DataTable = <T extends Record<string, any>,>({
 
   const handleDelete = () => {
     if (selectedItem && onDeleteClick) {
-      console.log('Deleting item', selectedItem);
       onDeleteClick(selectedItem);
     }
     handleMenuClose();
@@ -107,7 +110,6 @@ export const DataTable = <T extends Record<string, any>,>({
 
   const handleEdit = () => {
     if (selectedItem && onEditClick) {
-      console.log('Start Editing item', selectedItem);
       onEditClick(selectedItem);
     }
     handleMenuClose();
@@ -133,9 +135,139 @@ export const DataTable = <T extends Record<string, any>,>({
     }
   };
 
+  const mobileCardList = (
+    <Stack spacing={1}>
+      {isLoading ? (
+        [...Array(parseInt(pageSize))].map((_, index) => (
+          <Box
+            key={`skeleton-${index}`}
+            sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2 }}
+          >
+            <Skeleton variant="text" width="50%" height={24} sx={{ mb: 1 }} />
+            {headers.slice(1).map((header) => (
+              <Skeleton key={header.key} variant="text" width="80%" height={18} />
+            ))}
+          </Box>
+        ))
+      ) : currentData.length === 0 ? (
+        <Typography variant="body2" color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
+          No data available
+        </Typography>
+      ) : (
+        currentData.map((item, index) => {
+          const titleKeys = cardTitleFields ?? [headers[0].key as keyof T];
+          const titleValue = titleKeys.map((k) => item[k]).filter(Boolean).join(' ');
+          const titleKeySet = new Set(titleKeys.map(String));
+          const remainingHeaders = headers.filter((h) => !titleKeySet.has(h.key));
+          return (
+          <Box
+            key={item[idField] || index}
+            sx={{
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 1,
+              p: 2,
+              bgcolor: 'rgba(255, 255, 255, 0.04)',
+            }}
+          >
+            <Stack direction="row" alignItems="flex-start" justifyContent="space-between">
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography variant="body1" fontWeight={600} sx={{ mb: 0.75 }}>
+                  {titleValue}
+                </Typography>
+                {remainingHeaders.map((header) => (
+                  <Stack key={header.key} direction="row" spacing={0.75} sx={{ mb: 0.25 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0 }}>
+                      {header.label}:
+                    </Typography>
+                    <Typography variant="body2" noWrap>
+                      {item[header.key]}
+                    </Typography>
+                  </Stack>
+                ))}
+              </Box>
+              <IconButton
+                size="small"
+                onClick={(e) => handleMenuOpen(e, item)}
+                sx={{ ml: 1, flexShrink: 0, color: 'grey.400' }}
+              >
+                <MoreHorizIcon />
+              </IconButton>
+            </Stack>
+          </Box>
+          );
+        })
+      )}
+    </Stack>
+  );
+
+  const desktopTable = (
+    <TableContainer>
+      <Table stickyHeader>
+        <TableHead>
+          <TableRow>
+            {headers.map((header) => (
+              <TableCell key={header.key} align='left'>
+                {header.label}
+              </TableCell>
+            ))}
+            <TableCell />
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {isLoading ? (
+            [...Array(parseInt(pageSize))].map((_, index) => (
+              <TableRow key={`skeleton-${index}`}>
+                {headers.map((header) => (
+                  <TableCell key={header.key}>
+                    <Skeleton variant="text" width="80%" height={20} />
+                  </TableCell>
+                ))}
+                <TableCell>
+                  <Skeleton variant="circular" width={40} height={40} />
+                </TableCell>
+              </TableRow>
+            ))
+          ) : currentData.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={headers.length + 1} align="center">
+                <Typography variant="body2" color="text.secondary" sx={{ py: 4 }}>
+                  No data available
+                </Typography>
+              </TableCell>
+            </TableRow>
+          ) : (
+            currentData.map((item, index) => (
+              <TableRow
+                key={item.id || index}
+                onClick={() => handleRowClick(item)}
+                sx={{ '&:hover': { bgcolor: 'action.hover' } }}
+              >
+                {headers.map((header) => (
+                  <TableCell key={header.key} align='left'>
+                    {item[header.key]}
+                  </TableCell>
+                ))}
+                <TableCell align='right'>
+                  <IconButton
+                    onClick={(e) => handleMenuOpen(e, item)}
+                    title="Additional Row Actions"
+                    sx={{ color: "grey.400" }}
+                  >
+                    <MoreHorizIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
   return (
     <Card variant="outlined">
-      <Stack sx={{ p: 4, pl: 2, pb: 0 }}>
+      <Stack sx={{ pt: 4, px: 2, pb: 0 }}>
         <OutlinedInput
           size='small'
           placeholder="Search..."
@@ -157,81 +289,15 @@ export const DataTable = <T extends Record<string, any>,>({
             Error loading data. Please try again later.
           </Alert>
         ) : (
-          <TableContainer>
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  {headers.map((header) => (
-                    <TableCell key={header.key} align='left'>
-                      {header.label}
-                    </TableCell>
-                  ))}
-                  <TableCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {isLoading ? (
-                  [...Array(parseInt(pageSize))].map((_, index) => (
-                    <TableRow key={`skeleton-${index}`}>
-                      {headers.map((header) => (
-                        <TableCell key={header.key}>
-                          <Skeleton variant="text" width="80%" height={20} />
-                        </TableCell>
-                      ))}
-                      <TableCell>
-                        <Skeleton variant="circular" width={40} height={40} />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : currentData.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={headers.length + 1} align="center">
-                      <Typography variant="body2" color="text.secondary" sx={{ py: 4 }}>
-                        No data available
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  currentData.map((item, index) => (
-                    <TableRow
-                      key={item.id || index}
-                      sx={{ '&:hover': { bgcolor: 'action.hover' } }}
-                    >
-                      {headers.map((header) => (
-                        <TableCell key={header.key} align='left'>
-                          {item[header.key]}
-                        </TableCell>
-                      ))}
-                      <TableCell align='right'>
-                        <IconButton
-                          onClick={(e) => handleMenuOpen(e, item)}
-                          title="Additional Row Actions"
-                          sx={{ color: "grey.400" }}
-                        >
-                          <MoreHorizIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          isMobile ? mobileCardList : desktopTable
         )}
 
-        {/* Move Menu outside the map - render only once */}
         <Menu
           anchorEl={anchorEl}
           open={open}
           onClose={handleMenuClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         >
           <MenuItem onClick={handleEdit}>
             <ListItemIcon>
@@ -239,7 +305,6 @@ export const DataTable = <T extends Record<string, any>,>({
             </ListItemIcon>
             <ListItemText>Edit</ListItemText>
           </MenuItem>
-
           <MenuItem onClick={handleDelete}>
             <ListItemIcon>
               <DeleteForeverIcon fontSize="small" color="error" />
@@ -251,17 +316,37 @@ export const DataTable = <T extends Record<string, any>,>({
         {!isLoading && !isError && filteredData.length > 0 && (
           <Stack
             direction="row"
-            sx={{
-              pt: 2,
-              justifyContent: "space-between",
-              alignItems: "center"
-            }}
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ pt: 2 }}
           >
             <Typography variant="body2" color="text.secondary">
-              {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalItems)} of {totalItems}
+              {indexOfFirstItem + 1}–{Math.min(indexOfLastItem, totalItems)} of {totalItems}
             </Typography>
 
-            <Stack direction="row" spacing={2} alignItems="center">
+            {isMobile ? (
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <IconButton
+                  size="small"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  sx={{ color: 'text.primary' }}
+                >
+                  <ChevronLeftIcon />
+                </IconButton>
+                <Typography variant="body2" color="text.secondary">
+                  Page {currentPage} of {totalPages}
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  sx={{ color: 'text.primary' }}
+                >
+                  <ChevronRightIcon />
+                </IconButton>
+              </Stack>
+            ) : (
               <Stack direction="row" spacing={1} alignItems="center">
                 <Typography variant="body2" color="text.secondary">
                   Rows per page:
@@ -278,17 +363,16 @@ export const DataTable = <T extends Record<string, any>,>({
                   <MenuItem value="20">20</MenuItem>
                   <MenuItem value="50">50</MenuItem>
                 </Select>
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={(_, page) => handlePageChange(page)}
+                  color="primary"
+                  size="small"
+                  shape="rounded"
+                />
               </Stack>
-
-              <Pagination
-                count={totalPages}
-                page={currentPage}
-                onChange={(_, page) => handlePageChange(page)}
-                color="primary"
-                size="small"
-                shape="rounded"
-              />
-            </Stack>
+            )}
           </Stack>
         )}
       </CardContent>

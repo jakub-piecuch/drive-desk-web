@@ -33,6 +33,14 @@ const SIDEBAR_STATE_KEY = "sidebar-collapsed-state";
 const DRAWER_WIDTH = 256;
 const DRAWER_COLLAPSED_WIDTH = 77;
 
+const PAGE_TITLES: Record<string, string> = {
+  '/home/dashboard': 'Dashboard',
+  '/home/lessons': 'Lessons',
+  '/home/cars': 'Cars',
+  '/home/instructors': 'Instructors',
+  '/home/trainees': 'Trainees',
+};
+
 interface NavItemProps {
   to: string;
   icon: React.ComponentType<{ className?: string; size?: number }>;
@@ -100,6 +108,7 @@ const NavItem = ({ to, icon: Icon, label, collapsed, isMobile, onMobileClick }: 
 
 export function AppSidebar() {
   const isMobile = useIsMobile();
+  const pathname = usePathname();
   const { signOut } = useClerk();
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -304,16 +313,17 @@ export function AppSidebar() {
           }}
         >
           <Toolbar>
-            <Typography variant="h6" fontWeight={600} sx={{ flexGrow: 1 }}>
-              DriveDesk
-            </Typography>
             <IconButton
               color="inherit"
-              edge="end"
+              edge="start"
               onClick={handleDrawerToggle}
+              sx={{ mr: 1 }}
             >
               <MenuIcon />
             </IconButton>
+            <Typography variant="h6" fontWeight={600}>
+              {PAGE_TITLES[pathname] ?? 'DriveDesk'}
+            </Typography>
           </Toolbar>
         </AppBar>
 
